@@ -55,11 +55,12 @@ services:
     environment:
       DISPLAY_WIDTH: 1920
       DISPLAY_HEIGHT: 1080
+    # Network mode host for better performance (optional, may improve latency)
+    # network_mode: host
     # Note: This noVNC container provides a web-based VNC client.
     # The frontend embeds it via iframe and passes VNC connection parameters.
-    # For production, you may need a custom noVNC setup with websockify
-    # to proxy VNC connections securely.
-    # Alternative: Use a noVNC + websockify setup for better control.
+    # For better performance, consider using websockify as a proxy.
+    # Alternative: Use a noVNC + websockify setup for better control and performance.
 
 volumes:
   postgres_data:

@@ -10,9 +10,11 @@ interface VncTabProps {
 
 export const VncTab: React.FC<VncTabProps> = ({ machine, isActive }) => {
   // Generate noVNC URL using the same hostname as the page
+  // Performance optimizations: compression=0 (no compression for lower latency), 
+  // show_dot=true (show cursor dot), quality=6 (balanced quality/performance)
   const hostname = window.location.hostname;
   const protocol = window.location.protocol;
-  const novncUrl = `${protocol}//${hostname}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&password=${encodeURIComponent(machine.password || '')}&autoconnect=true&resize=scale&reconnect=true`;
+  const novncUrl = `${protocol}//${hostname}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&password=${encodeURIComponent(machine.password || '')}&autoconnect=true&resize=scale&reconnect=true&compression=0&quality=6&show_dot=true`;
 
   // Always render the iframe but hide it when not active to prevent disconnection
   return (
