@@ -181,10 +181,10 @@ export const DashboardPage: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-800">Machines</h2>
             <button
               onClick={toggleSidebar}
-              className="lg:hidden text-gray-500 hover:text-gray-700 p-1"
-              title="Hide Sidebar"
+              className="text-gray-500 hover:text-gray-700 p-1.5 hover:bg-gray-200 rounded transition"
+              title={sidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
             >
-              ×
+              {sidebarOpen ? '←' : '→'}
             </button>
           </div>
 
