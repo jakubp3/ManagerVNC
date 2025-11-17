@@ -22,9 +22,10 @@ RUN npm run build
 EXPOSE 4000
 
 # Create startup script
-RUN echo '#!/bin/sh\n\
-npx prisma migrate deploy || true\n\
-npm start' > /app/start.sh && chmod +x /app/start.sh
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'npx prisma migrate deploy || true' >> /app/start.sh && \
+    echo 'npm start' >> /app/start.sh && \
+    chmod +x /app/start.sh
 
 # Start server
 CMD ["/app/start.sh"]
