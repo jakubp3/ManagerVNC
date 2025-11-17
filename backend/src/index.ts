@@ -6,6 +6,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { authRoutes } from './routes/auth';
 import { userRoutes } from './routes/users';
 import { vncMachineRoutes } from './routes/vncMachines';
+import { initAdmin } from './initAdmin';
 
 dotenv.config();
 
@@ -35,27 +36,9 @@ app.use(errorHandler);
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   
-  // Display admin credentials if admin user exists
-  try {
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
-    const admin = await prisma.user.findUnique({
-      where: { email: 'admin@example.com' },
-      select: { id: true, email: true, role: true },
-    });
-    
-    if (admin) {
-      console.log('\n========================================');
-      console.log('Admin account exists:');
-      console.log('Email: admin@example.com');
-      console.log('(Password was set during database seed)');
-      console.log('Run: npm run prisma:seed to see password');
-      console.log('========================================\n');
-    }
-    
-    await prisma.$disconnect();
-  } catch (error) {
-    // Ignore errors - database might not be ready yet
-  }
+  // Initialize admin account if it doesn't exist
+  setTimeout(() => {
+    initAdmin();
+  }, 2000); // Wait 2 seconds for database to be ready
 });
 
