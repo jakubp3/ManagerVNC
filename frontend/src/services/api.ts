@@ -8,7 +8,9 @@ const getApiUrl = () => {
   // Use the same hostname and protocol as the current page, but port 4000
   const hostname = window.location.hostname;
   const protocol = window.location.protocol;
-  return `${protocol}//${hostname}:4000/api`;
+  const apiUrl = `${protocol}//${hostname}:4000/api`;
+  console.log('API URL:', apiUrl, 'from hostname:', hostname);
+  return apiUrl;
 };
 
 const API_URL = getApiUrl();
