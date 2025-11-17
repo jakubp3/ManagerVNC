@@ -47,6 +47,7 @@ services:
       - "3000:80"
     depends_on:
       - backend
+    # For browser access, use localhost. The API URL is baked into the build.
 
   novnc:
     image: theasp/novnc:latest
