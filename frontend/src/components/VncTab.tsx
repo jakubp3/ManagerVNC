@@ -1,3 +1,4 @@
+import React from 'react';
 import { VncMachine } from '../types';
 
 interface VncTabProps {
@@ -7,7 +8,7 @@ interface VncTabProps {
   onClose: () => void;
 }
 
-export const VncTab: React.FC<VncTabProps> = ({ machine, isActive, onSelect, onClose }) => {
+export const VncTab: React.FC<VncTabProps> = ({ machine, isActive }) => {
   // Generate noVNC URL
   // The noVNC container should be configured to proxy VNC connections
   // This URL format works with standard noVNC installations
