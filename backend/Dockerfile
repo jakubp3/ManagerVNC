@@ -21,12 +21,6 @@ RUN npm run build
 # Expose port
 EXPOSE 4000
 
-# Create startup script
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'npx prisma migrate deploy || true' >> /app/start.sh && \
-    echo 'npm start' >> /app/start.sh && \
-    chmod +x /app/start.sh
-
-# Start server
-CMD ["/app/start.sh"]
+# Start server (run migrations on startup)
+CMD ["sh", "-c", "npx prisma migrate deploy || true && npm start"]
 

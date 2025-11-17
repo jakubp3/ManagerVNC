@@ -1,12 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Generate a random password for admin
-  const adminPlainPassword = crypto.randomBytes(12).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 12);
+  // Static test password for admin (for testing only)
+  const adminPlainPassword = 'admin123';
   const adminPassword = await bcrypt.hash(adminPlainPassword, 10);
 
   const admin = await prisma.user.upsert({
@@ -21,10 +20,10 @@ async function main() {
   });
 
   console.log('\n========================================');
-  console.log('ADMIN ACCOUNT CREATED');
+  console.log('ADMIN ACCOUNT CREATED (TEST MODE)');
   console.log('========================================');
   console.log('Email:    admin@example.com');
-  console.log('Password: ' + adminPlainPassword);
+  console.log('Password: admin123');
   console.log('========================================\n');
 
   // Create a test regular user
