@@ -158,7 +158,7 @@ export const DashboardPage: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
-        {/* Sidebar Toggle Button */}
+        {/* Sidebar Toggle Button - Mobile */}
         <button
           onClick={toggleSidebar}
           className={`absolute top-2 left-2 z-50 lg:hidden bg-gray-800 text-white p-2 rounded-md shadow-lg hover:bg-gray-700 transition ${
@@ -168,6 +168,17 @@ export const DashboardPage: React.FC = () => {
         >
           {sidebarOpen ? '←' : '→'}
         </button>
+
+        {/* Sidebar Toggle Button - Desktop (when closed) */}
+        {!sidebarOpen && (
+          <button
+            onClick={toggleSidebar}
+            className="hidden lg:block absolute top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-md shadow-lg hover:bg-gray-700 transition"
+            title="Show Sidebar"
+          >
+            →
+          </button>
+        )}
 
         {/* Sidebar */}
         <div
