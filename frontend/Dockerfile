@@ -2,8 +2,8 @@ FROM node:20-alpine as build
 
 WORKDIR /app
 
-# Build args
-ARG VITE_API_URL=http://localhost:4000/api
+# Build args (optional - if not set, runtime detection will be used)
+ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
 COPY package*.json ./
