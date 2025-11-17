@@ -31,9 +31,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+    # Remove volume mount in production - code is built into image
+    # volumes:
+    #   - ./backend:/app
+    #   - /app/node_modules
 
   frontend:
     build:
