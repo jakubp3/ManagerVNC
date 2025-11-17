@@ -14,12 +14,9 @@ export const VncTab: React.FC<VncTabProps> = ({ machine, isActive }) => {
   const protocol = window.location.protocol;
   const novncUrl = `${protocol}//${hostname}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&password=${encodeURIComponent(machine.password || '')}&autoconnect=true&resize=scale&reconnect=true`;
 
-  if (!isActive) {
-    return null;
-  }
-
+  // Always render the iframe but hide it when not active to prevent disconnection
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className={`flex flex-col h-full w-full ${isActive ? '' : 'hidden'}`}>
       <iframe
         src={novncUrl}
         className="w-full h-full border-0"
