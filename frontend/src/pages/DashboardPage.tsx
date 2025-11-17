@@ -172,8 +172,8 @@ export const DashboardPage: React.FC = () => {
         {/* Sidebar */}
         <div
           className={`${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-          } fixed lg:static inset-y-0 left-0 w-80 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 z-40 lg:z-auto`}
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:overflow-hidden'
+          } fixed lg:static inset-y-0 left-0 w-80 lg:w-80 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-40 lg:z-auto`}
           style={{ top: '64px' }}
         >
           {/* Sidebar Header */}
