@@ -12,34 +12,34 @@ export const Header: React.FC = () => {
 
   return (
     <header className="bg-gray-800 text-white shadow-lg">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-bold">VNC Manager</h1>
-          <nav className="flex space-x-4">
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+        <div className="flex items-center space-x-2 sm:space-x-4 flex-wrap">
+          <h1 className="text-lg sm:text-xl font-bold">VNC Manager</h1>
+          <nav className="flex space-x-2 sm:space-x-4">
             <button
               onClick={() => navigate('/dashboard')}
-              className="hover:text-gray-300 transition"
+              className="hover:text-gray-300 transition text-sm sm:text-base"
             >
               Dashboard
             </button>
             {user?.role === 'ADMIN' && (
               <button
                 onClick={() => navigate('/admin')}
-                className="hover:text-gray-300 transition"
+                className="hover:text-gray-300 transition text-sm sm:text-base"
               >
                 Admin Panel
               </button>
             )}
           </nav>
         </div>
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-300">{user?.email}</span>
+        <div className="flex items-center space-x-2 sm:space-x-4 flex-wrap">
+          <span className="text-xs sm:text-sm text-gray-300 truncate max-w-[150px] sm:max-w-none">{user?.email}</span>
           <span className="text-xs bg-gray-700 px-2 py-1 rounded">
             {user?.role}
           </span>
           <button
             onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition"
+            className="bg-red-600 hover:bg-red-700 px-3 sm:px-4 py-1 sm:py-2 rounded transition text-sm sm:text-base"
           >
             Logout
           </button>

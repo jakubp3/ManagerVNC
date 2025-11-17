@@ -9,11 +9,10 @@ interface VncTabProps {
 }
 
 export const VncTab: React.FC<VncTabProps> = ({ machine, isActive }) => {
-  // Generate noVNC URL
-  // The noVNC container should be configured to proxy VNC connections
-  // This URL format works with standard noVNC installations
-  // In production, you might need to adjust the URL format based on your noVNC setup
-  const novncUrl = `http://localhost:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&password=${encodeURIComponent(machine.password || '')}&autoconnect=true&resize=scale&reconnect=true`;
+  // Generate noVNC URL using the same hostname as the page
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  const novncUrl = `${protocol}//${hostname}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&password=${encodeURIComponent(machine.password || '')}&autoconnect=true&resize=scale&reconnect=true`;
 
   if (!isActive) {
     return null;

@@ -23,9 +23,9 @@ export const VncTabs: React.FC<VncTabsProps> = ({
   }
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       {/* Tab bar */}
-      <div className="bg-gray-200 border-b border-gray-300 flex overflow-x-auto">
+      <div className="bg-gray-200 border-b border-gray-300 flex overflow-x-auto flex-shrink-0">
         {sessions.map((session) => (
           <div
             key={session.id}
@@ -53,7 +53,7 @@ export const VncTabs: React.FC<VncTabsProps> = ({
       </div>
 
       {/* Active tab content */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0">
         {sessions.map((session) => (
           <VncTab
             key={session.id}

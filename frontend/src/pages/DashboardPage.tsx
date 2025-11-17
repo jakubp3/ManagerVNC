@@ -15,8 +15,39 @@ export const DashboardPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingMachine, setEditingMachine] = useState<VncMachine | null>(null);
   const [isSharedModal, setIsSharedModal] = useState(false);
-  const [sessions, setSessions] = useState<Array<{ id: string; machine: VncMachine }>>([]);
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  
+  // Load sessions from localStorage on mount
+  const loadSessions = (): Array<{ id: string; machine: VncMachine }> => {
+    try {
+      const saved = localStorage.getItem('vnc_sessions');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to load sessions:', e);
+    }
+    return [];
+  };
+
+  const saveSessions = (sessions: Array<{ id: string; machine: VncMachine }>) => {
+    try {
+      localStorage.setItem('vnc_sessions', JSON.stringify(sessions));
+    } catch (e) {
+      console.error('Failed to save sessions:', e);
+    }
+  };
+
+  const [sessions, setSessionsState] = useState<Array<{ id: string; machine: VncMachine }>>(loadSessions);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(() => {
+    const saved = localStorage.getItem('active_vnc_session');
+    return saved || null;
+  });
+
+  // Update localStorage when sessions change
+  const setSessions = (newSessions: Array<{ id: string; machine: VncMachine }>) => {
+    setSessionsState(newSessions);
+    saveSessions(newSessions);
+  };
 
   useEffect(() => {
     fetchMachines();
@@ -80,17 +111,33 @@ export const DashboardPage: React.FC = () => {
   };
 
   const handleOpenMachine = (machine: VncMachine) => {
+    // Check if session already exists for this machine
+    const existingSession = sessions.find(s => s.machine.id === machine.id);
+    if (existingSession) {
+      setActiveSessionId(existingSession.id);
+      return;
+    }
+
     const sessionId = `session-${Date.now()}-${machine.id}`;
     const newSession = { id: sessionId, machine };
-    setSessions([...sessions, newSession]);
+    const updatedSessions = [...sessions, newSession];
+    setSessions(updatedSessions);
     setActiveSessionId(sessionId);
+    localStorage.setItem('active_vnc_session', sessionId);
   };
 
   const handleCloseSession = (sessionId: string) => {
-    setSessions(sessions.filter((s) => s.id !== sessionId));
+    const updatedSessions = sessions.filter((s) => s.id !== sessionId);
+    setSessions(updatedSessions);
     if (activeSessionId === sessionId) {
-      const remaining = sessions.filter((s) => s.id !== sessionId);
-      setActiveSessionId(remaining.length > 0 ? remaining[0].id : null);
+      const remaining = updatedSessions;
+      const newActiveId = remaining.length > 0 ? remaining[0].id : null;
+      setActiveSessionId(newActiveId);
+      if (newActiveId) {
+        localStorage.setItem('active_vnc_session', newActiveId);
+      } else {
+        localStorage.removeItem('active_vnc_session');
+      }
     }
   };
 
@@ -100,9 +147,9 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Sidebar */}
-        <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto p-4">
+        <div className="w-full lg:w-80 bg-white border-r border-gray-200 overflow-y-auto p-4 flex-shrink-0">
           <div className="mb-4">
             <button
               onClick={handleCreateMachine}
@@ -153,11 +200,14 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Main content area with VNC tabs */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0">
           <VncTabs
             sessions={sessions}
             activeSessionId={activeSessionId}
-            onSelectSession={setActiveSessionId}
+            onSelectSession={(id) => {
+              setActiveSessionId(id);
+              localStorage.setItem('active_vnc_session', id);
+            }}
             onCloseSession={handleCloseSession}
           />
         </div>
