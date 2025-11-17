@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { VncMachine } from '../types';
 import { VncTab } from './VncTab';
 
@@ -16,14 +16,12 @@ export const VncTabs: React.FC<VncTabsProps> = ({
   onCloseSession,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      // Request fullscreen on the VNC tabs container, not the whole document
-      const container = document.querySelector('.vnc-tabs-container') as HTMLElement;
-      if (container) {
-        container.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
-      }
+    if (!document.fullscreenElement && containerRef.current) {
+      // Request fullscreen on the VNC tabs container
+      containerRef.current.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
     } else {
       document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
     }
@@ -47,7 +45,7 @@ export const VncTabs: React.FC<VncTabsProps> = ({
   }
 
   return (
-    <div className={`vnc-tabs-container flex-1 flex flex-col min-h-0 ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''}`}>
+    <div ref={containerRef} className={`flex-1 flex flex-col min-h-0 ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''}`}>
       {/* Tab bar - always visible, even in fullscreen */}
       <div className="bg-gray-200 border-b border-gray-300 flex overflow-x-auto flex-shrink-0 items-center">
         <div className="flex flex-1 overflow-x-auto">
