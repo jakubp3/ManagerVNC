@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 
 const updateUserSchema = z.object({
   role: z.enum(['USER', 'ADMIN']).optional(),
+  canManageSharedMachines: z.boolean().optional(),
 });
 
 export const getUsers = async (req: Request, res: Response) => {
@@ -15,6 +16,7 @@ export const getUsers = async (req: Request, res: Response) => {
       id: true,
       email: true,
       role: true,
+      canManageSharedMachines: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -42,6 +44,7 @@ export const updateUser = async (req: Request, res: Response) => {
       id: true,
       email: true,
       role: true,
+      canManageSharedMachines: true,
       createdAt: true,
       updatedAt: true,
     },

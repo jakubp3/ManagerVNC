@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 import { AppError } from './errorHandler';
+
+const prisma = new PrismaClient();
 
 // Extend Express Request to include user
 declare global {
@@ -8,6 +11,7 @@ declare global {
     interface Request {
       userId?: string;
       userRole?: 'USER' | 'ADMIN';
+      canManageSharedMachines?: boolean;
     }
   }
 }
@@ -20,7 +24,7 @@ export interface JWTPayload {
   role: 'USER' | 'ADMIN';
 }
 
-export const authenticate = (req: Request, res: Response, next: NextFunction) => {
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -32,6 +36,16 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
 
     req.userId = decoded.userId;
     req.userRole = decoded.role;
+    
+    // Fetch user's canManageSharedMachines permission from database
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: { canManageSharedMachines: true, role: true },
+    });
+    
+    // Admins always have this permission, otherwise use the user's permission
+    req.canManageSharedMachines = user?.role === 'ADMIN' || user?.canManageSharedMachines || false;
+    
     next();
   } catch (error) {
     if (error instanceof AppError) {

@@ -110,7 +110,7 @@ export const DashboardPage: React.FC = () => {
             >
               + Create Personal Machine
             </button>
-            {user?.role === 'ADMIN' && (
+            {(user?.role === 'ADMIN' || user?.canManageSharedMachines) && (
               <button
                 onClick={handleCreateSharedMachine}
                 className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition"
@@ -135,7 +135,7 @@ export const DashboardPage: React.FC = () => {
                   onEdit={handleEditMachine}
                   onDelete={handleDeleteMachine}
                   title="Shared Machines"
-                  canEdit={user?.role === 'ADMIN'}
+                  canEdit={user?.role === 'ADMIN' || user?.canManageSharedMachines || false}
                 />
               )}
               {personalMachines.length > 0 && (

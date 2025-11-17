@@ -80,9 +80,9 @@ export const getVncMachine = async (req: Request, res: Response) => {
 export const createVncMachine = async (req: Request, res: Response) => {
   const validated = createVncMachineSchema.parse(req.body);
 
-  // Only admins can create shared machines
-  if (validated.isShared && req.userRole !== 'ADMIN') {
-    throw new AppError(403, 'Only admins can create shared machines');
+  // Only users with canManageSharedMachines permission can create shared machines
+  if (validated.isShared && !req.canManageSharedMachines) {
+    throw new AppError(403, 'You do not have permission to create shared machines');
   }
 
   const machine = await prisma.vncMachine.create({
@@ -112,9 +112,9 @@ export const updateVncMachine = async (req: Request, res: Response) => {
 
   // Authorization checks
   if (existingMachine.ownerId === null) {
-    // Shared machine - only admin can edit
-    if (req.userRole !== 'ADMIN') {
-      throw new AppError(403, 'Only admins can edit shared machines');
+    // Shared machine - only users with canManageSharedMachines permission can edit
+    if (!req.canManageSharedMachines) {
+      throw new AppError(403, 'You do not have permission to edit shared machines');
     }
   } else {
     // Personal machine - only owner can edit
@@ -125,8 +125,8 @@ export const updateVncMachine = async (req: Request, res: Response) => {
 
   // If trying to change isShared, validate permissions
   if (validated.isShared !== undefined) {
-    if (validated.isShared && req.userRole !== 'ADMIN') {
-      throw new AppError(403, 'Only admins can create shared machines');
+    if (validated.isShared && !req.canManageSharedMachines) {
+      throw new AppError(403, 'You do not have permission to create shared machines');
     }
   }
 
@@ -160,9 +160,9 @@ export const deleteVncMachine = async (req: Request, res: Response) => {
 
   // Authorization checks
   if (existingMachine.ownerId === null) {
-    // Shared machine - only admin can delete
-    if (req.userRole !== 'ADMIN') {
-      throw new AppError(403, 'Only admins can delete shared machines');
+    // Shared machine - only users with canManageSharedMachines permission can delete
+    if (!req.canManageSharedMachines) {
+      throw new AppError(403, 'You do not have permission to delete shared machines');
     }
   } else {
     // Personal machine - only owner can delete
