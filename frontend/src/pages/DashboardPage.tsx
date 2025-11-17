@@ -42,11 +42,21 @@ export const DashboardPage: React.FC = () => {
     const saved = localStorage.getItem('active_vnc_session');
     return saved || null;
   });
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    const saved = localStorage.getItem('sidebar_open');
+    return saved !== 'false'; // Default to open
+  });
 
   // Update localStorage when sessions change
   const setSessions = (newSessions: Array<{ id: string; machine: VncMachine }>) => {
     setSessionsState(newSessions);
     saveSessions(newSessions);
+  };
+
+  const toggleSidebar = () => {
+    const newState = !sidebarOpen;
+    setSidebarOpen(newState);
+    localStorage.setItem('sidebar_open', String(newState));
   };
 
   useEffect(() => {
@@ -147,57 +157,97 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+        {/* Sidebar Toggle Button */}
+        <button
+          onClick={toggleSidebar}
+          className={`absolute top-2 left-2 z-50 lg:hidden bg-gray-800 text-white p-2 rounded-md shadow-lg hover:bg-gray-700 transition ${
+            sidebarOpen ? '' : 'opacity-75'
+          }`}
+          title={sidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
+        >
+          {sidebarOpen ? '←' : '→'}
+        </button>
+
         {/* Sidebar */}
-        <div className="w-full lg:w-80 bg-white border-r border-gray-200 overflow-y-auto p-4 flex-shrink-0">
-          <div className="mb-4">
+        <div
+          className={`${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          } fixed lg:static inset-y-0 left-0 w-80 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 z-40 lg:z-auto`}
+          style={{ top: '64px' }}
+        >
+          {/* Sidebar Header */}
+          <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+            <h2 className="text-lg font-semibold text-gray-800">Machines</h2>
             <button
-              onClick={handleCreateMachine}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition mb-2"
+              onClick={toggleSidebar}
+              className="lg:hidden text-gray-500 hover:text-gray-700 p-1"
+              title="Hide Sidebar"
             >
-              + Create Personal Machine
+              ×
             </button>
-            {(user?.role === 'ADMIN' || user?.canManageSharedMachines) && (
-              <button
-                onClick={handleCreateSharedMachine}
-                className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition"
-              >
-                + Create Shared Machine
-              </button>
-            )}
           </div>
 
-          {loading ? (
-            <div className="text-center py-8 text-gray-500">Loading...</div>
-          ) : error ? (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {sharedMachines.length > 0 && (
-                <MachineList
-                  machines={sharedMachines}
-                  onOpen={handleOpenMachine}
-                  onEdit={handleEditMachine}
-                  onDelete={handleDeleteMachine}
-                  title="Shared Machines"
-                  canEdit={user?.role === 'ADMIN' || user?.canManageSharedMachines || false}
-                />
-              )}
-              {personalMachines.length > 0 && (
-                <MachineList
-                  machines={personalMachines}
-                  onOpen={handleOpenMachine}
-                  onEdit={handleEditMachine}
-                  onDelete={handleDeleteMachine}
-                  title="My Machines"
-                  canEdit={true}
-                />
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="mb-4">
+              <button
+                onClick={handleCreateMachine}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition mb-2 font-medium shadow-sm hover:shadow-md"
+              >
+                + Create Personal Machine
+              </button>
+              {(user?.role === 'ADMIN' || user?.canManageSharedMachines) && (
+                <button
+                  onClick={handleCreateSharedMachine}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition font-medium shadow-sm hover:shadow-md"
+                >
+                  + Create Shared Machine
+                </button>
               )}
             </div>
-          )}
+
+            {loading ? (
+              <div className="text-center py-8 text-gray-500">Loading...</div>
+            ) : error ? (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {error}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {sharedMachines.length > 0 && (
+                  <MachineList
+                    machines={sharedMachines}
+                    onOpen={handleOpenMachine}
+                    onEdit={handleEditMachine}
+                    onDelete={handleDeleteMachine}
+                    title="Shared Machines"
+                    canEdit={user?.role === 'ADMIN' || user?.canManageSharedMachines || false}
+                  />
+                )}
+                {personalMachines.length > 0 && (
+                  <MachineList
+                    machines={personalMachines}
+                    onOpen={handleOpenMachine}
+                    onEdit={handleEditMachine}
+                    onDelete={handleDeleteMachine}
+                    title="My Machines"
+                    canEdit={true}
+                  />
+                )}
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Sidebar Overlay for Mobile */}
+        {sidebarOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={toggleSidebar}
+            style={{ top: '64px' }}
+          />
+        )}
 
         {/* Main content area with VNC tabs */}
         <div className="flex-1 flex flex-col min-w-0">

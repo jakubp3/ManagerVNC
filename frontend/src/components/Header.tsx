@@ -18,14 +18,14 @@ export const Header: React.FC = () => {
           <nav className="flex space-x-2 sm:space-x-4">
             <button
               onClick={() => navigate('/dashboard')}
-              className="hover:text-gray-300 transition text-sm sm:text-base"
+              className="hover:text-gray-300 transition text-sm sm:text-base px-2 py-1 rounded hover:bg-gray-700"
             >
               Dashboard
             </button>
             {user?.role === 'ADMIN' && (
               <button
                 onClick={() => navigate('/admin')}
-                className="hover:text-gray-300 transition text-sm sm:text-base"
+                className="hover:text-gray-300 transition text-sm sm:text-base px-2 py-1 rounded hover:bg-gray-700"
               >
                 Admin Panel
               </button>
@@ -33,13 +33,13 @@ export const Header: React.FC = () => {
           </nav>
         </div>
         <div className="flex items-center space-x-2 sm:space-x-4 flex-wrap">
-          <span className="text-xs sm:text-sm text-gray-300 truncate max-w-[150px] sm:max-w-none">{user?.email}</span>
-          <span className="text-xs bg-gray-700 px-2 py-1 rounded">
+          <span className="text-xs sm:text-sm text-gray-300 break-all max-w-[200px] sm:max-w-none">{user?.email}</span>
+          <span className="text-xs bg-gray-700 px-2 py-1 rounded font-medium">
             {user?.role}
           </span>
           <button
             onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700 px-3 sm:px-4 py-1 sm:py-2 rounded transition text-sm sm:text-base"
+            className="bg-red-600 hover:bg-red-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition text-sm sm:text-base font-medium shadow-sm hover:shadow"
           >
             Logout
           </button>
