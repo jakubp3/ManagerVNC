@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: managervnc-db
+    environment:
+      POSTGRES_USER: managervnc
+      POSTGRES_PASSWORD: managervnc_password
+      POSTGRES_DB: managervnc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U managervnc"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: managervnc-backend
+    environment:
+      DATABASE_URL: postgresql://managervnc:managervnc_password@db:5432/managervnc
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      PORT: 4000
+      NODE_ENV: production
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:4000/api
+    container_name: managervnc-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  novnc:
+    image: theasp/novnc:latest
+    container_name: managervnc-novnc
+    ports:
+      - "6080:8080"
+    environment:
+      DISPLAY_WIDTH: 1920
+      DISPLAY_HEIGHT: 1080
+    # Note: This noVNC container provides a web-based VNC client.
+    # The frontend embeds it via iframe and passes VNC connection parameters.
+    # For production, you may need a custom noVNC setup with websockify
+    # to proxy VNC connections securely.
+    # Alternative: Use a noVNC + websockify setup for better control.
+
+volumes:
+  postgres_data:
+

@@ -1,0 +1,46 @@
+// Prisma schema for VNC Manager
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashed password (bcrypt)
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Personal VNC machines owned by this user
+  vncMachines VncMachine[]
+
+  @@map("users")
+}
+
+model VncMachine {
+  id        String   @id @default(cuid())
+  name      String
+  host      String
+  port      Int      @default(5900) // Default VNC port
+  password  String?  // Optional VNC password (in production, use a vault)
+  ownerId   String?  // null = shared machine (admin-created), non-null = personal machine
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner User? @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("vnc_machines")
+}
+
