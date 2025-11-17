@@ -33,7 +33,7 @@ app.use('/api/vnc-machines', vncMachineRoutes);
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server running on port ${PORT}`);
   
   // Initialize admin account if it doesn't exist
