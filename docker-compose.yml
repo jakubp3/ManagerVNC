@@ -40,14 +40,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        - VITE_API_URL=http://localhost:4000/api
+      # Don't set VITE_API_URL - let it use runtime detection based on window.location
     container_name: managervnc-frontend
     ports:
       - "3000:80"
     depends_on:
       - backend
-    # For browser access, use localhost. The API URL is baked into the build.
 
   novnc:
     image: theasp/novnc:latest
