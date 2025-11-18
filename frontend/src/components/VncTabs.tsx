@@ -45,7 +45,7 @@ export const VncTabs: React.FC<VncTabsProps> = ({
   }
 
   return (
-    <div ref={containerRef} className={`flex-1 flex flex-col min-h-0 ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''}`}>
+    <div ref={containerRef} className={`vnc-tabs-container flex-1 flex flex-col min-h-0 ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''}`}>
       {/* Tab bar - always visible, even in fullscreen */}
       <div className="bg-gray-200 border-b border-gray-300 flex overflow-x-auto flex-shrink-0 items-center h-12">
         <div className="flex flex-1 overflow-x-auto h-full">

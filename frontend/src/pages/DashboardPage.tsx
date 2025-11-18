@@ -236,6 +236,23 @@ export const DashboardPage: React.FC = () => {
                   </button>
                 </div>
               ))}
+              {/* Fullscreen button */}
+              <button
+                onClick={() => {
+                  const vncTabsContainer = document.querySelector('.vnc-tabs-container') as HTMLElement;
+                  if (vncTabsContainer) {
+                    if (!document.fullscreenElement) {
+                      vncTabsContainer.requestFullscreen().catch(() => {});
+                    } else {
+                      document.exitFullscreen().catch(() => {});
+                    }
+                  }
+                }}
+                className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white transition flex-shrink-0 h-full flex items-center ml-auto"
+                title="Toggle Fullscreen"
+              >
+                ⤢
+              </button>
             </div>
           </div>
         )}
