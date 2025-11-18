@@ -1,13 +1,6 @@
 import { VncMachine } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
-// Helper function to generate noVNC URL
-const getNovncUrl = (machine: VncMachine): string => {
-  const hostname = window.location.hostname;
-  const protocol = window.location.protocol;
-  return `${protocol}//${hostname}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&password=${encodeURIComponent(machine.password || '')}&autoconnect=true&resize=scale&reconnect=true&compression=0&quality=6&show_dot=true`;
-};
-
 interface MachineListProps {
   machines: VncMachine[];
   onOpen: (machine: VncMachine) => void;
