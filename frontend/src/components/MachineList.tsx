@@ -73,7 +73,8 @@ export const MachineList: React.FC<MachineListProps> = ({
                   <button
                     onClick={() => {
                       // Open direct VNC connection to the VNC server IP (not through manager)
-                      const url = `${window.location.protocol}//${machine.host}:${machine.port === 5900 ? 6080 : machine.port}/vnc.html?autoconnect=true&resize=scale&reconnect=true&compression=0&quality=6&show_dot=true`;
+                      // Assumes noVNC is running on the VNC server at port 6080
+                      const url = `${window.location.protocol}//${machine.host}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&autoconnect=true&resize=scale&reconnect=true&compression=0&quality=6&show_dot=true`;
                       window.open(url, '_blank');
                     }}
                     className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition shadow-sm hover:shadow"
