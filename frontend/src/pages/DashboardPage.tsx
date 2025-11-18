@@ -313,13 +313,13 @@ export const DashboardPage: React.FC = () => {
       <Header />
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* Sidebar Toggle Button - Mobile (when closed) */}
-        {!sidebarOpen && (
+            {!sidebarOpen && (
           <button
             onClick={toggleSidebar}
             className="lg:hidden absolute top-2 left-2 z-50 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg shadow-lg hover:shadow-xl transition font-medium"
             title="Show Sidebar"
           >
-            →
+            Menu
           </button>
         )}
 
@@ -330,32 +330,30 @@ export const DashboardPage: React.FC = () => {
             className="hidden lg:flex absolute top-4 left-4 z-50 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all font-semibold items-center gap-3 text-lg"
             title="Show Sidebar"
           >
-            <span className="text-2xl">→</span>
-            <span>Show Sessions</span>
+            Show Sessions
           </button>
         )}
 
         {/* Session Cards Bar - Desktop (when sidebar is closed and sessions exist) */}
         {!sidebarOpen && sessions.length > 0 && (
-          <div className="hidden lg:block absolute top-0 left-0 right-0 z-50 bg-gray-200 border-b border-gray-300">
+          <div className="hidden lg:block absolute top-0 left-0 right-0 z-50 bg-gray-200 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700">
             <div className="flex flex-1 overflow-x-auto items-center h-12">
               {/* Show Sessions button as first card */}
               <button
                 onClick={toggleSidebar}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-5 py-2.5 border-r border-gray-300 transition font-semibold flex-shrink-0 h-full flex items-center"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-5 py-2.5 border-r border-gray-300 dark:border-gray-600 transition font-semibold flex-shrink-0 h-full flex items-center"
                 title="Show sessions"
               >
-                <span className="mr-2">☰</span>
-                <span>Show Sessions</span>
+                Show Sessions
               </button>
               {/* Session name cards with close button */}
               {sessions.map((session) => (
                 <div
                   key={session.id}
-                  className={`flex items-center border-r border-gray-300 flex-shrink-0 h-full ${
+                  className={`flex items-center border-r border-gray-300 dark:border-gray-600 flex-shrink-0 h-full ${
                     activeSessionId === session.id
-                      ? 'bg-white border-b-2 border-b-blue-500'
-                      : 'bg-gray-100 hover:bg-gray-50'
+                      ? 'bg-white dark:bg-gray-700 border-b-2 border-b-blue-500'
+                      : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
                   <button
@@ -366,7 +364,7 @@ export const DashboardPage: React.FC = () => {
                     className="px-4 py-2 cursor-pointer transition h-full flex items-center"
                     title={`Switch to ${session.machine.name}`}
                   >
-                    <span className="text-sm font-medium whitespace-nowrap text-gray-800">
+                    <span className="text-sm font-medium whitespace-nowrap text-gray-800 dark:text-gray-200">
                       {session.machine.name}
                     </span>
                   </button>
@@ -375,7 +373,7 @@ export const DashboardPage: React.FC = () => {
                       e.stopPropagation();
                       handleCloseSession(session.id);
                     }}
-                    className="px-2 py-2 text-gray-500 hover:text-red-600 transition h-full flex items-center"
+                    className="px-2 py-2 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition h-full flex items-center"
                     title="Close session"
                   >
                     ×
@@ -397,7 +395,7 @@ export const DashboardPage: React.FC = () => {
                 className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white transition flex-shrink-0 h-full flex items-center ml-auto"
                 title="Toggle Fullscreen"
               >
-                ⤢
+                Fullscreen
               </button>
             </div>
           </div>
@@ -424,7 +422,7 @@ export const DashboardPage: React.FC = () => {
               className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition"
               title="Hide Sidebar"
             >
-              ←
+              Hide
             </button>
           </div>
 
@@ -440,7 +438,9 @@ export const DashboardPage: React.FC = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
                 />
-                <span className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-500">🔍</span>
+                <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
               <div className="flex gap-2 flex-wrap">
                 <select
@@ -460,15 +460,16 @@ export const DashboardPage: React.FC = () => {
                       ? 'bg-yellow-500 text-white'
                       : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}
+                  title="Show favorites only"
                 >
-                  ⭐
+                  Favorites
                 </button>
                 <button
                   onClick={() => setDarkMode(!darkMode)}
                   className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
                   title="Toggle dark mode"
                 >
-                  {darkMode ? '☀️' : '🌙'}
+                  {darkMode ? 'Light' : 'Dark'}
                 </button>
               </div>
               <div className="flex gap-2 flex-wrap">
@@ -476,17 +477,17 @@ export const DashboardPage: React.FC = () => {
                   onClick={() => setShowQuickConnect(true)}
                   className="flex-1 min-w-[140px] bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition"
                 >
-                  ⚡ Quick
+                  Quick Connect
                 </button>
                 <button
                   onClick={exportSessions}
                   className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition"
                   title="Export sessions"
                 >
-                  📥
+                  Export
                 </button>
                 <label className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition cursor-pointer">
-                  📤
+                  Import
                   <input
                     type="file"
                     accept=".json"
@@ -526,8 +527,7 @@ export const DashboardPage: React.FC = () => {
                 {showFavoritesOnly && favoriteMachines.length > 0 && (
                   <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                     <div className="w-full px-4 py-3 flex items-center justify-between">
-                      <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200">⭐ Favorites</h3>
-                      <span className="text-yellow-500">⭐</span>
+                      <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200">Favorites</h3>
                     </div>
                     <div className="px-4 pb-4">
                       <MachineList
@@ -657,7 +657,7 @@ export const DashboardPage: React.FC = () => {
       {showQuickConnect && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4 dark:text-gray-200">Quick Connect</h2>
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Quick Connect</h2>
             <div className="mb-4">
               <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                 Host/IP *
@@ -691,7 +691,7 @@ export const DashboardPage: React.FC = () => {
                   setQuickConnectHost('');
                   setQuickConnectPort(5900);
                 }}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition dark:text-gray-200"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-200"
               >
                 Cancel
               </button>

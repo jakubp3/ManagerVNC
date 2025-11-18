@@ -24,16 +24,16 @@ export const MachineList: React.FC<MachineListProps> = ({
 
   if (machines.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4">{title}</h3>
-        <p className="text-gray-500 text-sm">No sessions available</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">{title}</h3>
+        <p className="text-gray-500 dark:text-gray-400 text-sm">No sessions available</p>
       </div>
     );
   }
 
   return (
-    <div className={title ? "bg-white rounded-lg shadow-sm p-4 mb-4" : ""}>
-      {title && <h3 className="text-base font-semibold mb-3 text-gray-800">{title}</h3>}
+    <div className={title ? "bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-4" : ""}>
+      {title && <h3 className="text-base font-semibold mb-3 text-gray-800 dark:text-gray-200">{title}</h3>}
       <div className="space-y-2">
         {machines.map((machine) => {
           const isOwner = machine.ownerId === user?.id;
@@ -55,14 +55,14 @@ export const MachineList: React.FC<MachineListProps> = ({
                             e.stopPropagation();
                             onToggleFavorite(machine);
                           }}
-                          className={`text-lg transition ${
+                          className={`text-sm transition ${
                             machine.isFavorite
-                              ? 'text-yellow-500 hover:text-yellow-600'
-                              : 'text-gray-300 hover:text-yellow-500'
+                              ? 'text-yellow-500 hover:text-yellow-600 dark:text-yellow-400'
+                              : 'text-gray-400 dark:text-gray-500 hover:text-yellow-500 dark:hover:text-yellow-400'
                           }`}
                           title={machine.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                         >
-                          ⭐
+                          {machine.isFavorite ? '★' : '☆'}
                         </button>
                       )}
                       <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100 break-words">{machine.name}</h4>

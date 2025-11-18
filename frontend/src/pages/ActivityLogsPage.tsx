@@ -59,7 +59,7 @@ export const ActivityLogsPage: React.FC = () => {
                 onClick={fetchLogs}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm font-medium"
               >
-                🔄 Refresh
+                Refresh
               </button>
             </div>
 
