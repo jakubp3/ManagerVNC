@@ -84,6 +84,11 @@ export const MachineList: React.FC<MachineListProps> = ({
                     <p className="text-xs text-gray-600 dark:text-gray-400 break-all">
                       {machine.host}:{machine.port}
                     </p>
+                    {machine.lastAccessed && (
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        Last accessed: {new Date(machine.lastAccessed).toLocaleString()}
+                      </p>
+                    )}
                     {machine.notes && (
                       <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 italic line-clamp-2">
                         {machine.notes}

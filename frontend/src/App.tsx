@@ -5,6 +5,7 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { AdminPage } from './pages/AdminPage';
+import { ActivityLogsPage } from './pages/ActivityLogsPage';
 
 function App() {
   return (
@@ -26,6 +27,14 @@ function App() {
             element={
               <PrivateRoute requireAdmin>
                 <AdminPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/activity-logs"
+            element={
+              <PrivateRoute>
+                <ActivityLogsPage />
               </PrivateRoute>
             }
           />

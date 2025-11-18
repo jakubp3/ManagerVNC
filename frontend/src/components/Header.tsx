@@ -22,6 +22,12 @@ export const Header: React.FC = () => {
             >
               Dashboard
             </button>
+            <button
+              onClick={() => navigate('/activity-logs')}
+              className="hover:text-gray-300 transition text-sm sm:text-base px-2 py-1 rounded hover:bg-gray-700"
+            >
+              Activity Logs
+            </button>
             {user?.role === 'ADMIN' && (
               <button
                 onClick={() => navigate('/admin')}
