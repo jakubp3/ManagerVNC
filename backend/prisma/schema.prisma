@@ -41,7 +41,7 @@ model VncMachine {
   ownerId   String?  // null = shared machine (admin-created), non-null = personal machine
   notes     String?  // Optional notes/description
   tags      String?  // JSON array of tags
-  group     String?  // Optional group/folder name
+  groups    String?  // JSON array of group names (multiple groups per session)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   lastAccessed DateTime? // Last time this machine was accessed

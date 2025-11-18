@@ -1,7 +1,99 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import { VncMachine } from '../types';
+
+// Group Manager Component
+const GroupManager: React.FC<{ machines: VncMachine[] }> = ({ machines }) => {
+  const [allGroups, setAllGroups] = useState<string[]>([]);
+  const [newGroupName, setNewGroupName] = useState('');
+
+  useEffect(() => {
+    const groups = new Set<string>();
+    machines.forEach(m => {
+      if (m.groups && m.groups.length > 0) {
+        m.groups.forEach(g => groups.add(g));
+      }
+    });
+    setAllGroups(Array.from(groups).sort());
+  }, [machines]);
+
+  const handleAddGroup = () => {
+    if (newGroupName.trim() && !allGroups.includes(newGroupName.trim())) {
+      setAllGroups([...allGroups, newGroupName.trim()].sort());
+      setNewGroupName('');
+    }
+  };
+
+  const handleDeleteGroup = (groupName: string) => {
+    if (window.confirm(`Delete group "${groupName}"? This will remove it from all sessions.`)) {
+      // Remove group from all machines
+      machines.forEach(async (machine) => {
+        if (machine.groups && machine.groups.includes(groupName)) {
+          const updatedGroups = machine.groups.filter(g => g !== groupName);
+          try {
+            await api.patch(`/vnc-machines/${machine.id}`, {
+              groups: updatedGroups.length > 0 ? updatedGroups : undefined,
+            });
+          } catch (err) {
+            console.error('Failed to update machine:', machine.name);
+          }
+        }
+      });
+      setAllGroups(allGroups.filter(g => g !== groupName));
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={newGroupName}
+          onChange={(e) => setNewGroupName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleAddGroup();
+            }
+          }}
+          placeholder="New group name"
+          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+        />
+        <button
+          onClick={handleAddGroup}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition text-sm font-medium"
+        >
+          Add Group
+        </button>
+      </div>
+      {allGroups.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Existing groups:</p>
+          <div className="flex flex-wrap gap-2">
+            {allGroups.map((group) => (
+              <div
+                key={group}
+                className="inline-flex items-center px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-lg text-sm"
+              >
+                <span>{group}</span>
+                <button
+                  onClick={() => handleDeleteGroup(group)}
+                  className="ml-2 text-purple-600 dark:text-purple-400 hover:text-red-600 dark:hover:text-red-400 transition"
+                  title="Delete group"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <p className="text-sm text-gray-500 dark:text-gray-400">No groups created yet</p>
+      )}
+    </div>
+  );
+};
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -267,6 +359,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">0 = no timeout</p>
               </div>
             </div>
+          </div>
+
+          {/* Group Management */}
+          <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Group Management</h3>
+            <GroupManager machines={machines} />
           </div>
 
           {/* Data Management */}

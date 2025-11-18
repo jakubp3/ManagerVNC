@@ -56,7 +56,7 @@ export const DashboardPage: React.FC = () => {
     return saved !== 'false'; // Default to expanded
   });
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterGroup, setFilterGroup] = useState<string | null>(null);
+  const [filterGroups, setFilterGroups] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showQuickConnect, setShowQuickConnect] = useState(false);
   const [quickConnectHost, setQuickConnectHost] = useState('');
@@ -209,9 +209,12 @@ export const DashboardPage: React.FC = () => {
           m.tags?.some(tag => tag.toLowerCase().includes(query));
         if (!matchesSearch) return false;
       }
-      // Group filter
-      if (filterGroup) {
-        if (m.group !== filterGroup) return false;
+      // Groups filter (multiple groups)
+      if (filterGroups.length > 0) {
+        const sessionGroups = m.groups || [];
+        // Session must have at least one of the selected groups
+        const hasMatchingGroup = filterGroups.some(filterGroup => sessionGroups.includes(filterGroup));
+        if (!hasMatchingGroup) return false;
       }
       // Favorites filter
       if (showFavoritesOnly && !m.isFavorite) return false;
@@ -224,8 +227,14 @@ export const DashboardPage: React.FC = () => {
   const personalMachines = filterMachines(machines.filter((m) => m.ownerId === user?.id));
   const favoriteMachines = filterMachines(machines.filter((m) => m.isFavorite));
   
-  // Get unique groups
-  const groups = Array.from(new Set(allMachines.map(m => m.group).filter(Boolean))) as string[];
+  // Get unique groups from all machines
+  const allGroups = new Set<string>();
+  allMachines.forEach(m => {
+    if (m.groups && m.groups.length > 0) {
+      m.groups.forEach(g => allGroups.add(g));
+    }
+  });
+  const groups = Array.from(allGroups).sort();
 
   const handleQuickConnect = () => {
     if (!quickConnectHost.trim()) return;
@@ -408,16 +417,25 @@ export const DashboardPage: React.FC = () => {
                 </svg>
               </div>
               <div className="flex gap-2 flex-wrap">
-                <select
-                  value={filterGroup || ''}
-                  onChange={(e) => setFilterGroup(e.target.value || null)}
-                  className="flex-1 min-w-[120px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-                >
-                  <option value="">All Groups</option>
-                  {groups.map((group) => (
-                    <option key={group} value={group}>{group}</option>
-                  ))}
-                </select>
+                <div className="flex-1 min-w-[200px]">
+                  <select
+                    multiple
+                    value={filterGroups}
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions, option => option.value);
+                      setFilterGroups(selected);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                    size={3}
+                  >
+                    {groups.map((group) => (
+                      <option key={group} value={group}>{group}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {filterGroups.length > 0 ? `${filterGroups.length} group(s) selected` : 'Select groups (Ctrl+Click for multiple)'}
+                  </p>
+                </div>
                 <button
                   onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition ${

@@ -16,7 +16,7 @@ export interface VncMachine {
   ownerId: string | null;
   notes?: string;
   tags?: string[];
-  group?: string;
+  groups?: string[];
   lastAccessed?: string;
   isFavorite?: boolean; // Client-side computed
   createdAt: string;

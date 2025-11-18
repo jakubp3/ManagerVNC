@@ -45,6 +45,24 @@ export const Header: React.FC = () => {
           </span>
           <button
             onClick={() => {
+              const darkMode = localStorage.getItem('dark_mode') === 'true';
+              const newMode = !darkMode;
+              if (newMode) {
+                document.documentElement.classList.add('dark');
+              } else {
+                document.documentElement.classList.remove('dark');
+              }
+              localStorage.setItem('dark_mode', String(newMode));
+              // Dispatch event to update dashboard state
+              window.dispatchEvent(new CustomEvent('darkModeChange', { detail: newMode }));
+            }}
+            className="bg-gray-600 hover:bg-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition text-sm sm:text-base font-medium shadow-sm hover:shadow"
+            title="Toggle dark mode"
+          >
+            {localStorage.getItem('dark_mode') === 'true' ? 'Light' : 'Dark'}
+          </button>
+          <button
+            onClick={() => {
               // This will be handled by DashboardPage
               const event = new CustomEvent('openSettings');
               window.dispatchEvent(event);

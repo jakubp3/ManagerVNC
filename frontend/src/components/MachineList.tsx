@@ -66,10 +66,17 @@ export const MachineList: React.FC<MachineListProps> = ({
                         </button>
                       )}
                       <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100 break-words">{machine.name}</h4>
-                      {machine.group && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 flex-shrink-0 font-medium">
-                          {machine.group}
-                        </span>
+                      {machine.groups && machine.groups.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {machine.groups.map((group) => (
+                            <span
+                              key={group}
+                              className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 flex-shrink-0 font-medium"
+                            >
+                              {group}
+                            </span>
+                          ))}
+                        </div>
                       )}
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-medium ${

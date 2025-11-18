@@ -14,7 +14,7 @@ interface MachineModalProps {
     isShared: boolean;
     notes?: string;
     tags?: string[];
-    group?: string;
+    groups?: string[];
   }) => Promise<void>;
 }
 
@@ -33,7 +33,8 @@ export const MachineModal: React.FC<MachineModalProps> = ({
   const [notes, setNotes] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
-  const [group, setGroup] = useState('');
+  const [groups, setGroups] = useState<string[]>([]);
+  const [groupInput, setGroupInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -46,7 +47,7 @@ export const MachineModal: React.FC<MachineModalProps> = ({
       setShared(machine.ownerId === null);
       setNotes(machine.notes || '');
       setTags(machine.tags || []);
-      setGroup(machine.group || '');
+      setGroups(machine.groups || []);
     }
   }, [machine]);
 
@@ -64,7 +65,7 @@ export const MachineModal: React.FC<MachineModalProps> = ({
         isShared: shared,
         notes: notes || undefined,
         tags: tags.length > 0 ? tags : undefined,
-        group: group || undefined,
+        groups: groups.length > 0 ? groups : undefined,
       });
       onClose();
     } catch (err: any) {
@@ -86,6 +87,20 @@ export const MachineModal: React.FC<MachineModalProps> = ({
 
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter(t => t !== tagToRemove));
+  };
+
+  const handleAddGroup = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && groupInput.trim()) {
+      e.preventDefault();
+      if (!groups.includes(groupInput.trim())) {
+        setGroups([...groups, groupInput.trim()]);
+      }
+      setGroupInput('');
+    }
+  };
+
+  const handleRemoveGroup = (groupToRemove: string) => {
+    setGroups(groups.filter(g => g !== groupToRemove));
   };
 
   const canSetShared = user?.role === 'ADMIN' || user?.canManageSharedMachines || false;

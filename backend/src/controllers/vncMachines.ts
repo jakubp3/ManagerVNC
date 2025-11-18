@@ -13,7 +13,7 @@ const createVncMachineSchema = z.object({
   isShared: z.boolean().optional().default(false), // Frontend sends this flag
   notes: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  group: z.string().optional(),
+  groups: z.array(z.string()).optional(),
 });
 
 const updateVncMachineSchema = createVncMachineSchema.partial();
@@ -39,12 +39,14 @@ export const getVncMachines = async (req: Request, res: Response) => {
     },
   });
 
-  // Add isFavorite flag and parse tags
+  // Add isFavorite flag and parse tags/groups
   const machinesWithFavorites = machines.map(machine => {
     const tags = machine.tags ? JSON.parse(machine.tags) : [];
+    const groups = machine.groups ? JSON.parse(machine.groups) : [];
     return {
       ...machine,
       tags,
+      groups,
       isFavorite: favoriteIds.has(machine.id),
     };
   });
@@ -135,7 +137,8 @@ export const getVncMachine = async (req: Request, res: Response) => {
   });
 
   const tags = machine.tags ? JSON.parse(machine.tags) : [];
-  res.json({ machine: { ...machine, tags, isFavorite: !!isFavorite } });
+  const groups = machine.groups ? JSON.parse(machine.groups) : [];
+  res.json({ machine: { ...machine, tags, groups, isFavorite: !!isFavorite } });
 };
 
 export const createVncMachine = async (req: Request, res: Response) => {
@@ -155,7 +158,7 @@ export const createVncMachine = async (req: Request, res: Response) => {
       ownerId: validated.isShared ? null : req.userId!, // null = shared, userId = personal
       notes: validated.notes,
       tags: validated.tags ? JSON.stringify(validated.tags) : null,
-      group: validated.group,
+      groups: validated.groups ? JSON.stringify(validated.groups) : null,
     },
   });
 
@@ -169,7 +172,8 @@ export const createVncMachine = async (req: Request, res: Response) => {
   });
 
   const tags = machine.tags ? JSON.parse(machine.tags) : [];
-  res.status(201).json({ machine: { ...machine, tags } });
+  const groups = machine.groups ? JSON.parse(machine.groups) : [];
+  res.status(201).json({ machine: { ...machine, tags, groups } });
 };
 
 export const updateVncMachine = async (req: Request, res: Response) => {
@@ -211,7 +215,7 @@ export const updateVncMachine = async (req: Request, res: Response) => {
   if (validated.password !== undefined) updateData.password = validated.password;
   if (validated.notes !== undefined) updateData.notes = validated.notes;
   if (validated.tags !== undefined) updateData.tags = validated.tags ? JSON.stringify(validated.tags) : null;
-  if (validated.group !== undefined) updateData.group = validated.group;
+  if (validated.groups !== undefined) updateData.groups = validated.groups ? JSON.stringify(validated.groups) : null;
   if (validated.isShared !== undefined) {
     updateData.ownerId = validated.isShared ? null : req.userId!;
   }
@@ -231,7 +235,8 @@ export const updateVncMachine = async (req: Request, res: Response) => {
   });
 
   const tags = machine.tags ? JSON.parse(machine.tags) : [];
-  res.json({ machine: { ...machine, tags } });
+  const groups = machine.groups ? JSON.parse(machine.groups) : [];
+  res.json({ machine: { ...machine, tags, groups } });
 };
 
 export const deleteVncMachine = async (req: Request, res: Response) => {
