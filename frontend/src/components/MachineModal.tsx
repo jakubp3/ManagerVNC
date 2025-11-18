@@ -91,19 +91,35 @@ export const MachineModal: React.FC<MachineModalProps> = ({
     setTags(tags.filter(t => t !== tagToRemove));
   };
 
+  const addGroupByName = (groupName: string) => {
+    const trimmed = groupName.trim();
+    if (trimmed && !groups.includes(trimmed)) {
+      setGroups([...groups, trimmed]);
+      setGroupInput('');
+    }
+  };
+
   const handleAddGroup = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && groupInput.trim()) {
       e.preventDefault();
-      if (!groups.includes(groupInput.trim())) {
-        setGroups([...groups, groupInput.trim()]);
-      }
-      setGroupInput('');
+      addGroupByName(groupInput);
+    }
+  };
+
+  const handleSelectGroup = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedGroup = e.target.value;
+    if (selectedGroup && !groups.includes(selectedGroup)) {
+      addGroupByName(selectedGroup);
+      e.target.value = ''; // Reset select
     }
   };
 
   const handleRemoveGroup = (groupToRemove: string) => {
     setGroups(groups.filter(g => g !== groupToRemove));
   };
+
+  // Get groups that are not already selected
+  const unselectedGroups = availableGroups.filter(g => !groups.includes(g));
 
   const canSetShared = user?.role === 'ADMIN' || user?.canManageSharedMachines || false;
 
@@ -254,12 +270,7 @@ export const MachineModal: React.FC<MachineModalProps> = ({
                 type="text"
                 value={groupInput}
                 onChange={(e) => setGroupInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && groupInput.trim()) {
-                    e.preventDefault();
-                    handleAddGroup(groupInput);
-                  }
-                }}
+                onKeyDown={handleAddGroup}
                 placeholder={unselectedGroups.length > 0 ? "Or type new group name" : "Type group name and press Enter"}
                 className={`px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm ${unselectedGroups.length > 0 ? 'flex-1' : 'w-full'}`}
               />
