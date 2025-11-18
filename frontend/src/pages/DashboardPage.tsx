@@ -568,7 +568,7 @@ export const DashboardPage: React.FC = () => {
                 )}
                 {sharedMachines.length === 0 && personalMachines.length === 0 && favoriteMachines.length === 0 && (
                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    {searchQuery || filterGroup || showFavoritesOnly
+                    {searchQuery || filterGroups.length > 0 || showFavoritesOnly
                       ? 'No sessions match your filters'
                       : 'No sessions available'}
                   </div>

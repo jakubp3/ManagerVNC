@@ -216,17 +216,36 @@ export const MachineModal: React.FC<MachineModalProps> = ({
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="group">
-              Group/Folder (optional)
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="groups">
+              Groups (optional)
             </label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {groups.map((group) => (
+                <span
+                  key={group}
+                  className="inline-flex items-center px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded text-xs"
+                >
+                  {group}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveGroup(group)}
+                    className="ml-1 text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
             <input
-              id="group"
+              id="groups"
               type="text"
-              value={group}
-              onChange={(e) => setGroup(e.target.value)}
-              placeholder="e.g., Production, Testing"
+              value={groupInput}
+              onChange={(e) => setGroupInput(e.target.value)}
+              onKeyDown={handleAddGroup}
+              placeholder="Type group name and press Enter"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">You can add multiple groups</p>
           </div>
           {canSetShared && (
             <div className="mb-4">
