@@ -184,19 +184,21 @@ export const DashboardPage: React.FC = () => {
         {/* Session Cards - Desktop (when sidebar is closed and sessions exist) */}
         {!sidebarOpen && sessions.length > 0 && (
           <div className="hidden lg:flex absolute top-4 left-4 z-50 gap-2 flex-wrap">
+            {/* Show Menu button as first card */}
+            <button
+              onClick={toggleSidebar}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition font-medium"
+              title="Show menu"
+            >
+              Show Menu
+            </button>
+            {/* Session name cards */}
             {sessions.map((session) => (
               <div
                 key={session.id}
-                className="bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-2 flex items-center gap-3"
+                className="bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-2 flex items-center"
               >
                 <span className="font-medium text-gray-800">{session.machine.name}</span>
-                <button
-                  onClick={toggleSidebar}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium transition shadow-sm hover:shadow"
-                  title="Show menu"
-                >
-                  Show Menu
-                </button>
               </div>
             ))}
           </div>
