@@ -9,6 +9,13 @@ interface VncTabsProps {
   onCloseSession: (id: string) => void;
 }
 
+// Helper function to generate noVNC URL
+const getNovncUrl = (machine: VncMachine): string => {
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  return `${protocol}//${hostname}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&password=${encodeURIComponent(machine.password || '')}&autoconnect=true&resize=scale&reconnect=true&compression=0&quality=6&show_dot=true`;
+};
+
 export const VncTabs: React.FC<VncTabsProps> = ({
   sessions,
   activeSessionId,
@@ -65,9 +72,21 @@ export const VncTabs: React.FC<VncTabsProps> = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  const url = getNovncUrl(session.machine);
+                  window.open(url, '_blank', 'width=1920,height=1080');
+                }}
+                className="text-gray-500 hover:text-blue-600 transition ml-1 mr-1"
+                title="Open in new window"
+              >
+                ↗
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
                   onCloseSession(session.id);
                 }}
                 className="text-gray-500 hover:text-red-600 transition ml-1"
+                title="Close session"
               >
                 ×
               </button>

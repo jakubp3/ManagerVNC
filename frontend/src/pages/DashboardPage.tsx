@@ -155,7 +155,7 @@ export const DashboardPage: React.FC = () => {
   const personalMachines = machines.filter((m) => m.ownerId === user?.id);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       <Header />
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* Sidebar Toggle Button - Mobile */}
@@ -183,9 +183,9 @@ export const DashboardPage: React.FC = () => {
         {/* Sidebar */}
         <div
           className={`${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:overflow-hidden'
-          } fixed lg:static inset-y-0 left-0 w-80 lg:w-80 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-40 lg:z-auto`}
-          style={{ top: '64px' }}
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0'
+          } fixed lg:static inset-y-0 left-0 w-80 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-40 lg:z-auto`}
+          style={{ top: '64px', height: 'calc(100vh - 64px)' }}
         >
           {/* Sidebar Header */}
           <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
