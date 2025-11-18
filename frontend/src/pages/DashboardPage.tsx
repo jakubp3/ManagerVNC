@@ -444,13 +444,6 @@ export const DashboardPage: React.FC = () => {
                 >
                   Quick Connect
                 </button>
-                <button
-                  onClick={() => setShowSettings(true)}
-                  className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition"
-                  title="Settings"
-                >
-                  Settings
-                </button>
               </div>
             </div>
 
