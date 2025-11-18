@@ -14,8 +14,23 @@ export interface VncMachine {
   port: number;
   password?: string;
   ownerId: string | null;
+  notes?: string;
+  tags?: string[];
+  group?: string;
+  lastAccessed?: string;
+  isFavorite?: boolean; // Client-side computed
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ActivityLog {
+  id: string;
+  userId: string;
+  machineId: string;
+  action: string;
+  createdAt: string;
+  machine?: VncMachine;
+  user?: User;
 }
 
 export interface VncSession {

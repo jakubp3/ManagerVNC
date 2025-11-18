@@ -6,6 +6,8 @@ import { errorHandler } from './middleware/errorHandler';
 import { authRoutes } from './routes/auth';
 import { userRoutes } from './routes/users';
 import { vncMachineRoutes } from './routes/vncMachines';
+import { favoriteRoutes } from './routes/favorites';
+import { activityLogRoutes } from './routes/activityLogs';
 import { initAdmin } from './initAdmin';
 
 dotenv.config();
@@ -29,6 +31,8 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/vnc-machines', vncMachineRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/activity-logs', activityLogRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

@@ -11,11 +11,21 @@ const createVncMachineSchema = z.object({
   port: z.number().int().min(1).max(65535).default(5900),
   password: z.string().optional(),
   isShared: z.boolean().optional().default(false), // Frontend sends this flag
+  notes: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  group: z.string().optional(),
 });
 
 const updateVncMachineSchema = createVncMachineSchema.partial();
 
 export const getVncMachines = async (req: Request, res: Response) => {
+  // Get user's favorites
+  const userFavorites = await prisma.userFavorite.findMany({
+    where: { userId: req.userId! },
+    select: { machineId: true },
+  });
+  const favoriteIds = new Set(userFavorites.map(f => f.machineId));
+
   // Return both shared machines (ownerId = null) and user's personal machines
   const machines = await prisma.vncMachine.findMany({
     where: {
@@ -29,10 +39,26 @@ export const getVncMachines = async (req: Request, res: Response) => {
     },
   });
 
-  res.json({ machines });
+  // Add isFavorite flag and parse tags
+  const machinesWithFavorites = machines.map(machine => {
+    const tags = machine.tags ? JSON.parse(machine.tags) : [];
+    return {
+      ...machine,
+      tags,
+      isFavorite: favoriteIds.has(machine.id),
+    };
+  });
+
+  res.json({ machines: machinesWithFavorites });
 };
 
 export const getSharedMachines = async (req: Request, res: Response) => {
+  const userFavorites = await prisma.userFavorite.findMany({
+    where: { userId: req.userId! },
+    select: { machineId: true },
+  });
+  const favoriteIds = new Set(userFavorites.map(f => f.machineId));
+
   const machines = await prisma.vncMachine.findMany({
     where: {
       ownerId: null, // Shared machines have null ownerId
@@ -42,10 +68,25 @@ export const getSharedMachines = async (req: Request, res: Response) => {
     },
   });
 
-  res.json({ machines });
+  const machinesWithFavorites = machines.map(machine => {
+    const tags = machine.tags ? JSON.parse(machine.tags) : [];
+    return {
+      ...machine,
+      tags,
+      isFavorite: favoriteIds.has(machine.id),
+    };
+  });
+
+  res.json({ machines: machinesWithFavorites });
 };
 
 export const getPersonalMachines = async (req: Request, res: Response) => {
+  const userFavorites = await prisma.userFavorite.findMany({
+    where: { userId: req.userId! },
+    select: { machineId: true },
+  });
+  const favoriteIds = new Set(userFavorites.map(f => f.machineId));
+
   const machines = await prisma.vncMachine.findMany({
     where: {
       ownerId: req.userId!,
@@ -55,7 +96,16 @@ export const getPersonalMachines = async (req: Request, res: Response) => {
     },
   });
 
-  res.json({ machines });
+  const machinesWithFavorites = machines.map(machine => {
+    const tags = machine.tags ? JSON.parse(machine.tags) : [];
+    return {
+      ...machine,
+      tags,
+      isFavorite: favoriteIds.has(machine.id),
+    };
+  });
+
+  res.json({ machines: machinesWithFavorites });
 };
 
 export const getVncMachine = async (req: Request, res: Response) => {
@@ -74,7 +124,18 @@ export const getVncMachine = async (req: Request, res: Response) => {
     throw new AppError(403, 'Access denied');
   }
 
-  res.json({ machine });
+  // Check if favorited
+  const isFavorite = await prisma.userFavorite.findUnique({
+    where: {
+      userId_machineId: {
+        userId: req.userId!,
+        machineId: id,
+      },
+    },
+  });
+
+  const tags = machine.tags ? JSON.parse(machine.tags) : [];
+  res.json({ machine: { ...machine, tags, isFavorite: !!isFavorite } });
 };
 
 export const createVncMachine = async (req: Request, res: Response) => {
@@ -92,10 +153,23 @@ export const createVncMachine = async (req: Request, res: Response) => {
       port: validated.port,
       password: validated.password,
       ownerId: validated.isShared ? null : req.userId!, // null = shared, userId = personal
+      notes: validated.notes,
+      tags: validated.tags ? JSON.stringify(validated.tags) : null,
+      group: validated.group,
     },
   });
 
-  res.status(201).json({ machine });
+  // Log activity
+  await prisma.activityLog.create({
+    data: {
+      userId: req.userId!,
+      machineId: machine.id,
+      action: 'create',
+    },
+  });
+
+  const tags = machine.tags ? JSON.parse(machine.tags) : [];
+  res.status(201).json({ machine: { ...machine, tags } });
 };
 
 export const updateVncMachine = async (req: Request, res: Response) => {
@@ -135,6 +209,9 @@ export const updateVncMachine = async (req: Request, res: Response) => {
   if (validated.host !== undefined) updateData.host = validated.host;
   if (validated.port !== undefined) updateData.port = validated.port;
   if (validated.password !== undefined) updateData.password = validated.password;
+  if (validated.notes !== undefined) updateData.notes = validated.notes;
+  if (validated.tags !== undefined) updateData.tags = validated.tags ? JSON.stringify(validated.tags) : null;
+  if (validated.group !== undefined) updateData.group = validated.group;
   if (validated.isShared !== undefined) {
     updateData.ownerId = validated.isShared ? null : req.userId!;
   }
@@ -144,7 +221,17 @@ export const updateVncMachine = async (req: Request, res: Response) => {
     data: updateData,
   });
 
-  res.json({ machine });
+  // Log activity
+  await prisma.activityLog.create({
+    data: {
+      userId: req.userId!,
+      machineId: machine.id,
+      action: 'update',
+    },
+  });
+
+  const tags = machine.tags ? JSON.parse(machine.tags) : [];
+  res.json({ machine: { ...machine, tags } });
 };
 
 export const deleteVncMachine = async (req: Request, res: Response) => {
@@ -170,6 +257,15 @@ export const deleteVncMachine = async (req: Request, res: Response) => {
       throw new AppError(403, 'Access denied');
     }
   }
+
+  // Log activity before deletion
+  await prisma.activityLog.create({
+    data: {
+      userId: req.userId!,
+      machineId: id,
+      action: 'delete',
+    },
+  });
 
   await prisma.vncMachine.delete({
     where: { id },

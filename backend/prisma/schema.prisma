@@ -26,6 +26,8 @@ model User {
 
   // Personal VNC machines owned by this user
   vncMachines VncMachine[]
+  favorites   UserFavorite[]
+  activityLogs ActivityLog[]
 
   @@map("users")
 }
@@ -37,11 +39,42 @@ model VncMachine {
   port      Int      @default(5900) // Default VNC port
   password  String?  // Optional VNC password (in production, use a vault)
   ownerId   String?  // null = shared machine (admin-created), non-null = personal machine
+  notes     String?  // Optional notes/description
+  tags      String?  // JSON array of tags
+  group     String?  // Optional group/folder name
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  lastAccessed DateTime? // Last time this machine was accessed
 
   owner User? @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  favorites UserFavorite[] // Users who favorited this machine
 
   @@map("vnc_machines")
+}
+
+model UserFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  machineId String
+  createdAt DateTime @default(now())
+
+  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  machine VncMachine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, machineId])
+  @@map("user_favorites")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  machineId String
+  action    String   // 'connect', 'disconnect', 'create', 'update', 'delete'
+  createdAt DateTime @default(now())
+
+  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  machine VncMachine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
 }
 
