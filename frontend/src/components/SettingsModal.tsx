@@ -8,6 +8,7 @@ interface SettingsModalProps {
   onClose: () => void;
   machines: VncMachine[];
   onExportComplete?: () => void;
+  onDarkModeChange?: (enabled: boolean) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -15,6 +16,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   machines,
   onExportComplete,
+  onDarkModeChange,
 }) => {
   const { user } = useAuth();
   const [darkMode, setDarkMode] = useState(() => {
@@ -46,6 +48,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       document.documentElement.classList.remove('dark');
     }
     localStorage.setItem('dark_mode', String(newMode));
+    if (onDarkModeChange) {
+      onDarkModeChange(newMode);
+    }
   };
 
   const handleDefaultPortChange = (port: number) => {

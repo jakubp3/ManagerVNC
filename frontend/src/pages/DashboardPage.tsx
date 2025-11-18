@@ -615,6 +615,7 @@ export const DashboardPage: React.FC = () => {
         onClose={() => setShowSettings(false)}
         machines={allMachines}
         onExportComplete={fetchMachines}
+        onDarkModeChange={(enabled) => setDarkMode(enabled)}
       />
 
       {/* Quick Connect Modal */}
