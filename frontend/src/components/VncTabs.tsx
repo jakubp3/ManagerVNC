@@ -9,13 +9,6 @@ interface VncTabsProps {
   onCloseSession: (id: string) => void;
 }
 
-// Helper function to generate noVNC URL
-const getNovncUrl = (machine: VncMachine): string => {
-  const hostname = window.location.hostname;
-  const protocol = window.location.protocol;
-  return `${protocol}//${hostname}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&password=${encodeURIComponent(machine.password || '')}&autoconnect=true&resize=scale&reconnect=true&compression=0&quality=6&show_dot=true`;
-};
-
 export const VncTabs: React.FC<VncTabsProps> = ({
   sessions,
   activeSessionId,
