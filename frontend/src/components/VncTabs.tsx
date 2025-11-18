@@ -47,27 +47,32 @@ export const VncTabs: React.FC<VncTabsProps> = ({
   return (
     <div ref={containerRef} className={`flex-1 flex flex-col min-h-0 ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''}`}>
       {/* Tab bar - always visible, even in fullscreen */}
-      <div className="bg-gray-200 border-b border-gray-300 flex overflow-x-auto flex-shrink-0 items-center">
-        <div className="flex flex-1 overflow-x-auto">
+      <div className="bg-gray-200 border-b border-gray-300 flex overflow-x-auto flex-shrink-0 items-center h-12">
+        <div className="flex flex-1 overflow-x-auto h-full">
           {sessions.map((session) => (
             <div
               key={session.id}
-              className={`flex items-center px-4 py-2 border-r border-gray-300 cursor-pointer transition ${
+              className={`flex items-center border-r border-gray-300 flex-shrink-0 h-full ${
                 activeSessionId === session.id
                   ? 'bg-white border-b-2 border-b-blue-500'
                   : 'bg-gray-100 hover:bg-gray-50'
               }`}
-              onClick={() => onSelectSession(session.id)}
             >
-              <span className="text-sm font-medium mr-2 whitespace-nowrap">
-                {session.machine.name}
-              </span>
+              <button
+                onClick={() => onSelectSession(session.id)}
+                className="px-4 py-2 cursor-pointer transition h-full flex items-center"
+                title={`Switch to ${session.machine.name}`}
+              >
+                <span className="text-sm font-medium whitespace-nowrap text-gray-800">
+                  {session.machine.name}
+                </span>
+              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onCloseSession(session.id);
                 }}
-                className="text-gray-500 hover:text-red-600 transition ml-1"
+                className="px-2 py-2 text-gray-500 hover:text-red-600 transition h-full flex items-center"
                 title="Close session"
               >
                 ×
@@ -78,7 +83,7 @@ export const VncTabs: React.FC<VncTabsProps> = ({
         {/* Fullscreen button */}
         <button
           onClick={toggleFullscreen}
-          className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition flex-shrink-0 mx-2"
+          className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white transition flex-shrink-0 h-full flex items-center"
           title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
         >
           {isFullscreen ? '⤓' : '⤢'}

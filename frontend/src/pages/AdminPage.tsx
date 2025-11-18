@@ -148,7 +148,7 @@ export const AdminPage: React.FC = () => {
                         Role
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Admin View
+                        Can Manage Shared Sessions
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Created
@@ -187,13 +187,16 @@ export const AdminPage: React.FC = () => {
                                 alert(err.response?.data?.error || 'Failed to update permission');
                               }
                             }}
-                            className={`px-2 py-1 text-xs rounded transition ${
+                            className={`px-3 py-1 text-xs rounded transition font-medium ${
                               user.canManageSharedMachines
                                 ? 'bg-green-100 text-green-800 hover:bg-green-200'
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
+                            title={user.canManageSharedMachines 
+                              ? 'User can create/edit/delete shared sessions. Click to revoke.' 
+                              : 'User cannot manage shared sessions. Click to grant permission.'}
                           >
-                            {user.canManageSharedMachines ? 'Yes' : 'No'}
+                            {user.canManageSharedMachines ? '✓ Yes' : '✗ No'}
                           </button>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

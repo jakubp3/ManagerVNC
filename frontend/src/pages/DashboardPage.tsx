@@ -192,34 +192,49 @@ export const DashboardPage: React.FC = () => {
         {/* Session Cards Bar - Desktop (when sidebar is closed and sessions exist) */}
         {!sidebarOpen && sessions.length > 0 && (
           <div className="hidden lg:block absolute top-0 left-0 right-0 z-50 bg-gray-200 border-b border-gray-300">
-            <div className="flex flex-1 overflow-x-auto items-center">
+            <div className="flex flex-1 overflow-x-auto items-center h-12">
               {/* Show Menu button as first card */}
               <button
                 onClick={toggleSidebar}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 border-r border-gray-300 transition font-medium flex-shrink-0"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-5 py-2.5 border-r border-gray-300 transition font-semibold flex-shrink-0 h-full flex items-center"
                 title="Show menu"
               >
-                Show Menu
+                <span className="mr-2">☰</span>
+                <span>Menu</span>
               </button>
-              {/* Session name cards */}
+              {/* Session name cards with close button */}
               {sessions.map((session) => (
-                <button
+                <div
                   key={session.id}
-                  onClick={() => {
-                    setActiveSessionId(session.id);
-                    localStorage.setItem('active_vnc_session', session.id);
-                  }}
-                  className={`px-4 py-2 border-r border-gray-300 cursor-pointer transition flex-shrink-0 ${
+                  className={`flex items-center border-r border-gray-300 flex-shrink-0 h-full ${
                     activeSessionId === session.id
                       ? 'bg-white border-b-2 border-b-blue-500'
                       : 'bg-gray-100 hover:bg-gray-50'
                   }`}
-                  title={`Switch to ${session.machine.name}`}
                 >
-                  <span className="text-sm font-medium whitespace-nowrap text-gray-800">
-                    {session.machine.name}
-                  </span>
-                </button>
+                  <button
+                    onClick={() => {
+                      setActiveSessionId(session.id);
+                      localStorage.setItem('active_vnc_session', session.id);
+                    }}
+                    className="px-4 py-2 cursor-pointer transition h-full flex items-center"
+                    title={`Switch to ${session.machine.name}`}
+                  >
+                    <span className="text-sm font-medium whitespace-nowrap text-gray-800">
+                      {session.machine.name}
+                    </span>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCloseSession(session.id);
+                    }}
+                    className="px-2 py-2 text-gray-500 hover:text-red-600 transition h-full flex items-center"
+                    title="Close session"
+                  >
+                    ×
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -350,7 +365,7 @@ export const DashboardPage: React.FC = () => {
         )}
 
         {/* Main content area with VNC tabs */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className={`flex-1 flex flex-col min-w-0 ${!sidebarOpen ? 'lg:ml-0' : ''}`}>
           <VncTabs
             sessions={sessions}
             activeSessionId={activeSessionId}
