@@ -46,6 +46,14 @@ export const DashboardPage: React.FC = () => {
     const saved = localStorage.getItem('sidebar_open');
     return saved !== 'false'; // Default to open
   });
+  const [sharedSessionsExpanded, setSharedSessionsExpanded] = useState(() => {
+    const saved = localStorage.getItem('shared_sessions_expanded');
+    return saved !== 'false'; // Default to expanded
+  });
+  const [mySessionsExpanded, setMySessionsExpanded] = useState(() => {
+    const saved = localStorage.getItem('my_sessions_expanded');
+    return saved !== 'false'; // Default to expanded
+  });
 
   // Update localStorage when sessions change
   const setSessions = (newSessions: Array<{ id: string; machine: VncMachine }>) => {
@@ -173,10 +181,10 @@ export const DashboardPage: React.FC = () => {
         {!sidebarOpen && sessions.length === 0 && (
           <button
             onClick={toggleSidebar}
-            className="hidden lg:flex absolute top-4 left-4 z-50 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition font-medium items-center gap-2"
+            className="hidden lg:flex absolute top-4 left-4 z-50 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all font-semibold items-center gap-3 text-lg"
             title="Show Sidebar"
           >
-            <span>→</span>
+            <span className="text-2xl">→</span>
             <span>Show Sessions</span>
           </button>
         )}
@@ -268,26 +276,64 @@ export const DashboardPage: React.FC = () => {
                 {error}
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {sharedMachines.length > 0 && (
-                  <MachineList
-                    machines={sharedMachines}
-                    onOpen={handleOpenMachine}
-                    onEdit={handleEditMachine}
-                    onDelete={handleDeleteMachine}
-                    title="Shared Machines"
-                    canEdit={user?.role === 'ADMIN' || user?.canManageSharedMachines || false}
-                  />
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <button
+                      onClick={() => {
+                        const newState = !sharedSessionsExpanded;
+                        setSharedSessionsExpanded(newState);
+                        localStorage.setItem('shared_sessions_expanded', String(newState));
+                      }}
+                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition rounded-t-lg"
+                    >
+                      <h3 className="text-base font-semibold text-gray-800">Shared Sessions</h3>
+                      <span className="text-gray-500 text-lg">
+                        {sharedSessionsExpanded ? '▼' : '▶'}
+                      </span>
+                    </button>
+                    {sharedSessionsExpanded && (
+                      <div className="px-4 pb-4">
+                        <MachineList
+                          machines={sharedMachines}
+                          onOpen={handleOpenMachine}
+                          onEdit={handleEditMachine}
+                          onDelete={handleDeleteMachine}
+                          title=""
+                          canEdit={user?.role === 'ADMIN' || user?.canManageSharedMachines || false}
+                        />
+                      </div>
+                    )}
+                  </div>
                 )}
                 {personalMachines.length > 0 && (
-                  <MachineList
-                    machines={personalMachines}
-                    onOpen={handleOpenMachine}
-                    onEdit={handleEditMachine}
-                    onDelete={handleDeleteMachine}
-                    title="My Machines"
-                    canEdit={true}
-                  />
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <button
+                      onClick={() => {
+                        const newState = !mySessionsExpanded;
+                        setMySessionsExpanded(newState);
+                        localStorage.setItem('my_sessions_expanded', String(newState));
+                      }}
+                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition rounded-t-lg"
+                    >
+                      <h3 className="text-base font-semibold text-gray-800">My Sessions</h3>
+                      <span className="text-gray-500 text-lg">
+                        {mySessionsExpanded ? '▼' : '▶'}
+                      </span>
+                    </button>
+                    {mySessionsExpanded && (
+                      <div className="px-4 pb-4">
+                        <MachineList
+                          machines={personalMachines}
+                          onOpen={handleOpenMachine}
+                          onEdit={handleEditMachine}
+                          onDelete={handleDeleteMachine}
+                          title=""
+                          canEdit={true}
+                        />
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}

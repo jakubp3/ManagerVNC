@@ -30,8 +30,8 @@ export const MachineList: React.FC<MachineListProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-      <h3 className="text-base font-semibold mb-3 text-gray-800">{title}</h3>
+    <div className={title ? "bg-white rounded-lg shadow-sm p-4 mb-4" : ""}>
+      {title && <h3 className="text-base font-semibold mb-3 text-gray-800">{title}</h3>}
       <div className="space-y-2">
         {machines.map((machine) => {
           const isOwner = machine.ownerId === user?.id;
