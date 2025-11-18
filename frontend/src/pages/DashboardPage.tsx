@@ -181,26 +181,39 @@ export const DashboardPage: React.FC = () => {
           </button>
         )}
 
-        {/* Session Cards - Desktop (when sidebar is closed and sessions exist) */}
+        {/* Session Cards Bar - Desktop (when sidebar is closed and sessions exist) */}
         {!sidebarOpen && sessions.length > 0 && (
-          <div className="hidden lg:flex absolute top-4 left-4 z-50 gap-2 flex-wrap">
-            {/* Show Menu button as first card */}
-            <button
-              onClick={toggleSidebar}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition font-medium"
-              title="Show menu"
-            >
-              Show Menu
-            </button>
-            {/* Session name cards */}
-            {sessions.map((session) => (
-              <div
-                key={session.id}
-                className="bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-2 flex items-center"
+          <div className="hidden lg:block absolute top-0 left-0 right-0 z-50 bg-gray-200 border-b border-gray-300">
+            <div className="flex flex-1 overflow-x-auto items-center">
+              {/* Show Menu button as first card */}
+              <button
+                onClick={toggleSidebar}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 border-r border-gray-300 transition font-medium flex-shrink-0"
+                title="Show menu"
               >
-                <span className="font-medium text-gray-800">{session.machine.name}</span>
-              </div>
-            ))}
+                Show Menu
+              </button>
+              {/* Session name cards */}
+              {sessions.map((session) => (
+                <button
+                  key={session.id}
+                  onClick={() => {
+                    setActiveSessionId(session.id);
+                    localStorage.setItem('active_vnc_session', session.id);
+                  }}
+                  className={`px-4 py-2 border-r border-gray-300 cursor-pointer transition flex-shrink-0 ${
+                    activeSessionId === session.id
+                      ? 'bg-white border-b-2 border-b-blue-500'
+                      : 'bg-gray-100 hover:bg-gray-50'
+                  }`}
+                  title={`Switch to ${session.machine.name}`}
+                >
+                  <span className="text-sm font-medium whitespace-nowrap text-gray-800">
+                    {session.machine.name}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
