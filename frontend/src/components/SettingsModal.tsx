@@ -8,20 +8,43 @@ const GroupManager: React.FC<{ machines: VncMachine[] }> = ({ machines }) => {
   const [allGroups, setAllGroups] = useState<string[]>([]);
   const [newGroupName, setNewGroupName] = useState('');
 
+  // Load groups from localStorage and merge with groups from machines
   useEffect(() => {
     const groups = new Set<string>();
+    
+    // Load saved groups from localStorage
+    try {
+      const saved = localStorage.getItem('saved_groups');
+      if (saved) {
+        const savedGroups = JSON.parse(saved);
+        savedGroups.forEach((g: string) => groups.add(g));
+      }
+    } catch (e) {
+      console.error('Failed to load saved groups:', e);
+    }
+    
+    // Add groups from existing machines
     machines.forEach(m => {
       if (m.groups && m.groups.length > 0) {
         m.groups.forEach(g => groups.add(g));
       }
     });
+    
     setAllGroups(Array.from(groups).sort());
   }, [machines]);
 
   const handleAddGroup = () => {
     if (newGroupName.trim() && !allGroups.includes(newGroupName.trim())) {
-      setAllGroups([...allGroups, newGroupName.trim()].sort());
+      const updatedGroups = [...allGroups, newGroupName.trim()].sort();
+      setAllGroups(updatedGroups);
       setNewGroupName('');
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem('saved_groups', JSON.stringify(updatedGroups));
+      } catch (e) {
+        console.error('Failed to save groups:', e);
+      }
     }
   };
 
@@ -42,7 +65,16 @@ const GroupManager: React.FC<{ machines: VncMachine[] }> = ({ machines }) => {
         });
       
       await Promise.all(updates);
-      setAllGroups(allGroups.filter(g => g !== groupName));
+      const updatedGroups = allGroups.filter(g => g !== groupName);
+      setAllGroups(updatedGroups);
+      
+      // Update localStorage
+      try {
+        localStorage.setItem('saved_groups', JSON.stringify(updatedGroups));
+      } catch (e) {
+        console.error('Failed to save groups:', e);
+      }
+      
       // Refresh machines list
       window.location.reload();
     }
@@ -251,6 +283,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       localStorage.removeItem('sidebar_open');
       localStorage.removeItem('shared_sessions_expanded');
       localStorage.removeItem('my_sessions_expanded');
+      localStorage.removeItem('saved_groups');
       // Keep sessions and active session
       window.location.reload();
     }

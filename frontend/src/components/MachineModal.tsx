@@ -29,7 +29,11 @@ export const MachineModal: React.FC<MachineModalProps> = ({
   const { user } = useAuth();
   const [name, setName] = useState('');
   const [host, setHost] = useState('');
-  const [port, setPort] = useState(5900);
+  // Initialize port from localStorage default or 5900
+  const [port, setPort] = useState(() => {
+    const saved = localStorage.getItem('default_vnc_port');
+    return saved ? parseInt(saved, 10) : 5900;
+  });
   const [password, setPassword] = useState('');
   const [shared, setShared] = useState(isShared);
   const [notes, setNotes] = useState('');
@@ -50,8 +54,19 @@ export const MachineModal: React.FC<MachineModalProps> = ({
       setNotes(machine.notes || '');
       setTags(machine.tags || []);
       setGroups(machine.groups || []);
+    } else {
+      // Reset to defaults for new session
+      setName('');
+      setHost('');
+      const savedPort = localStorage.getItem('default_vnc_port');
+      setPort(savedPort ? parseInt(savedPort, 10) : 5900);
+      setPassword('');
+      setShared(isShared);
+      setNotes('');
+      setTags([]);
+      setGroups([]);
     }
-  }, [machine]);
+  }, [machine, isShared]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

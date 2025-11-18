@@ -227,8 +227,21 @@ export const DashboardPage: React.FC = () => {
   const personalMachines = filterMachines(machines.filter((m) => m.ownerId === user?.id));
   const favoriteMachines = filterMachines(machines.filter((m) => m.isFavorite));
   
-  // Get unique groups from all machines
+  // Get unique groups from all machines and localStorage
   const allGroups = new Set<string>();
+  
+  // Load saved groups from localStorage
+  try {
+    const saved = localStorage.getItem('saved_groups');
+    if (saved) {
+      const savedGroups = JSON.parse(saved);
+      savedGroups.forEach((g: string) => allGroups.add(g));
+    }
+  } catch (e) {
+    console.error('Failed to load saved groups:', e);
+  }
+  
+  // Add groups from existing machines
   allMachines.forEach(m => {
     if (m.groups && m.groups.length > 0) {
       m.groups.forEach(g => allGroups.add(g));
