@@ -15,6 +15,8 @@ COPY prisma ./prisma/
 RUN npm install
 
 # Generate Prisma Client
+# Set PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING to handle network issues with Prisma binaries
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate
 
 # Copy source code
