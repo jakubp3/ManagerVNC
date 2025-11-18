@@ -48,6 +48,7 @@ model VncMachine {
 
   owner User? @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   favorites UserFavorite[] // Users who favorited this machine
+  activityLogs ActivityLog[] // Activity logs for this machine
 
   @@map("vnc_machines")
 }
