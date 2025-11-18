@@ -157,10 +157,17 @@ export const DashboardPage: React.FC = () => {
         localStorage.removeItem('active_vnc_session');
       }
     }
-    // If no sessions left and sidebar is closed, open it automatically
-    if (updatedSessions.length === 0 && !sidebarOpen) {
-      setSidebarOpen(true);
-      localStorage.setItem('sidebar_open', 'true');
+    // If no sessions left
+    if (updatedSessions.length === 0) {
+      // Exit fullscreen if active
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+      // If sidebar is closed, open it automatically
+      if (!sidebarOpen) {
+        setSidebarOpen(true);
+        localStorage.setItem('sidebar_open', 'true');
+      }
     }
   };
 
