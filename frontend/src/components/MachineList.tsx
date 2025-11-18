@@ -24,7 +24,7 @@ export const MachineList: React.FC<MachineListProps> = ({
     return (
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold mb-4">{title}</h3>
-        <p className="text-gray-500 text-sm">No machines available</p>
+        <p className="text-gray-500 text-sm">No sessions available</p>
       </div>
     );
   }
@@ -72,8 +72,8 @@ export const MachineList: React.FC<MachineListProps> = ({
                   </button>
                   <button
                     onClick={() => {
-                      // Open direct VNC connection without password in URL
-                      const url = `${window.location.protocol}//${window.location.hostname}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&autoconnect=true&resize=scale&reconnect=true&compression=0&quality=6&show_dot=true`;
+                      // Open direct VNC connection to the VNC server IP (not through manager)
+                      const url = `${window.location.protocol}//${machine.host}:${machine.port === 5900 ? 6080 : machine.port}/vnc.html?autoconnect=true&resize=scale&reconnect=true&compression=0&quality=6&show_dot=true`;
                       window.open(url, '_blank');
                     }}
                     className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition shadow-sm hover:shadow"

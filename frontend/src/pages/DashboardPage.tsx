@@ -169,16 +169,32 @@ export const DashboardPage: React.FC = () => {
           </button>
         )}
 
-        {/* Sidebar Toggle Button - Desktop (when closed) */}
-        {!sidebarOpen && (
+        {/* Sidebar Toggle Button - Desktop (when closed, no sessions) */}
+        {!sidebarOpen && sessions.length === 0 && (
           <button
             onClick={toggleSidebar}
             className="hidden lg:flex absolute top-4 left-4 z-50 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition font-medium items-center gap-2"
             title="Show Sidebar"
           >
             <span>→</span>
-            <span>Show Machines</span>
+            <span>Show Sessions</span>
           </button>
+        )}
+
+        {/* Session Cards - Desktop (when sidebar is closed and sessions exist) */}
+        {!sidebarOpen && sessions.length > 0 && (
+          <div className="hidden lg:flex absolute top-4 left-4 z-50 gap-2 flex-wrap">
+            {sessions.map((session) => (
+              <button
+                key={session.id}
+                onClick={toggleSidebar}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition font-medium flex items-center gap-2"
+                title={`Click to show sessions - ${session.machine.name}`}
+              >
+                <span>{session.machine.name}</span>
+              </button>
+            ))}
+          </div>
         )}
 
         {/* Sidebar */}
@@ -195,7 +211,7 @@ export const DashboardPage: React.FC = () => {
               className="text-lg font-semibold text-gray-800 hover:text-blue-600 transition cursor-pointer"
               title="Click to hide/show sidebar"
             >
-              Machines
+              Sessions
             </button>
             <button
               onClick={toggleSidebar}
@@ -213,14 +229,14 @@ export const DashboardPage: React.FC = () => {
                 onClick={handleCreateMachine}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition mb-2 font-medium shadow-sm hover:shadow-md"
               >
-                + Create Personal Machine
+                + Create Personal Session
               </button>
               {(user?.role === 'ADMIN' || user?.canManageSharedMachines) && (
                 <button
                   onClick={handleCreateSharedMachine}
                   className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition font-medium shadow-sm hover:shadow-md"
                 >
-                  + Create Shared Machine
+                  + Create Shared Session
                 </button>
               )}
             </div>
