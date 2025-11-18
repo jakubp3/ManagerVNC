@@ -6,6 +6,7 @@ interface MachineListProps {
   onOpen: (machine: VncMachine) => void;
   onEdit: (machine: VncMachine) => void;
   onDelete: (machine: VncMachine) => void;
+  onToggleFavorite?: (machine: VncMachine) => void;
   title: string;
   canEdit: boolean;
 }
@@ -15,6 +16,7 @@ export const MachineList: React.FC<MachineListProps> = ({
   onOpen,
   onEdit,
   onDelete,
+  onToggleFavorite,
   title,
   canEdit,
 }) => {
@@ -41,26 +43,64 @@ export const MachineList: React.FC<MachineListProps> = ({
           return (
             <div
               key={machine.id}
-              className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition bg-gray-50 hover:bg-white"
+              className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:shadow-md transition bg-gray-50 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700"
             >
               <div className="flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h4 className="font-semibold text-sm text-gray-900 break-words">{machine.name}</h4>
+                      {onToggleFavorite && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFavorite(machine);
+                          }}
+                          className={`text-lg transition ${
+                            machine.isFavorite
+                              ? 'text-yellow-500 hover:text-yellow-600'
+                              : 'text-gray-300 hover:text-yellow-500'
+                          }`}
+                          title={machine.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                        >
+                          ⭐
+                        </button>
+                      )}
+                      <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100 break-words">{machine.name}</h4>
+                      {machine.group && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 flex-shrink-0 font-medium">
+                          {machine.group}
+                        </span>
+                      )}
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-medium ${
                           isShared
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-green-100 text-green-700'
+                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                            : 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
                         }`}
                       >
                         {isShared ? 'Shared' : 'Personal'}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-600 break-all">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 break-all">
                       {machine.host}:{machine.port}
                     </p>
+                    {machine.notes && (
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 italic line-clamp-2">
+                        {machine.notes}
+                      </p>
+                    )}
+                    {machine.tags && machine.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {machine.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-xs px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2 pt-1">

@@ -54,6 +54,16 @@ export const DashboardPage: React.FC = () => {
     const saved = localStorage.getItem('my_sessions_expanded');
     return saved !== 'false'; // Default to expanded
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterGroup, setFilterGroup] = useState<string | null>(null);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [showQuickConnect, setShowQuickConnect] = useState(false);
+  const [quickConnectHost, setQuickConnectHost] = useState('');
+  const [quickConnectPort, setQuickConnectPort] = useState(5900);
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('dark_mode');
+    return saved === 'true';
+  });
 
   // Update localStorage when sessions change
   const setSessions = (newSessions: Array<{ id: string; machine: VncMachine }>) => {
@@ -107,6 +117,9 @@ export const DashboardPage: React.FC = () => {
     port: number;
     password?: string;
     isShared: boolean;
+    notes?: string;
+    tags?: string[];
+    group?: string;
   }) => {
     if (editingMachine) {
       await api.patch(`/vnc-machines/${editingMachine.id}`, data);
@@ -128,7 +141,17 @@ export const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleOpenMachine = (machine: VncMachine) => {
+  const handleOpenMachine = async (machine: VncMachine) => {
+    // Log activity
+    try {
+      await api.post('/activity-logs', {
+        machineId: machine.id,
+        action: 'connect',
+      });
+    } catch (e) {
+      // Ignore activity log errors
+    }
+
     // Check if session already exists for this machine
     const existingSession = sessions.find(s => s.machine.id === machine.id);
     if (existingSession) {
@@ -171,11 +194,122 @@ export const DashboardPage: React.FC = () => {
     }
   };
 
-  const sharedMachines = machines.filter((m) => m.ownerId === null);
-  const personalMachines = machines.filter((m) => m.ownerId === user?.id);
+  // Apply filters
+  const filterMachines = (machines: VncMachine[]) => {
+    return machines.filter((m) => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = 
+          m.name.toLowerCase().includes(query) ||
+          m.host.toLowerCase().includes(query) ||
+          m.notes?.toLowerCase().includes(query) ||
+          m.tags?.some(tag => tag.toLowerCase().includes(query));
+        if (!matchesSearch) return false;
+      }
+      // Group filter
+      if (filterGroup) {
+        if (m.group !== filterGroup) return false;
+      }
+      // Favorites filter
+      if (showFavoritesOnly && !m.isFavorite) return false;
+      return true;
+    });
+  };
+
+  const allMachines = machines.filter((m) => m.ownerId === null || m.ownerId === user?.id);
+  const sharedMachines = filterMachines(machines.filter((m) => m.ownerId === null));
+  const personalMachines = filterMachines(machines.filter((m) => m.ownerId === user?.id));
+  const favoriteMachines = filterMachines(machines.filter((m) => m.isFavorite));
+  
+  // Get unique groups
+  const groups = Array.from(new Set(allMachines.map(m => m.group).filter(Boolean))) as string[];
+
+  const handleQuickConnect = () => {
+    if (!quickConnectHost.trim()) return;
+    const tempMachine: VncMachine = {
+      id: `quick-${Date.now()}`,
+      name: `Quick: ${quickConnectHost}:${quickConnectPort}`,
+      host: quickConnectHost.trim(),
+      port: quickConnectPort,
+      ownerId: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    handleOpenMachine(tempMachine);
+    setShowQuickConnect(false);
+    setQuickConnectHost('');
+    setQuickConnectPort(5900);
+  };
+
+  const toggleFavorite = async (machine: VncMachine) => {
+    try {
+      await api.post(`/favorites/${machine.id}`);
+      await fetchMachines();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to toggle favorite');
+    }
+  };
+
+  const exportSessions = () => {
+    const dataStr = JSON.stringify(allMachines, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `vnc-sessions-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportSessions = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    try {
+      const text = await file.text();
+      const imported = JSON.parse(text);
+      if (!Array.isArray(imported)) {
+        alert('Invalid file format');
+        return;
+      }
+      
+      for (const session of imported) {
+        try {
+          await api.post('/vnc-machines', {
+            name: session.name,
+            host: session.host,
+            port: session.port,
+            password: session.password,
+            notes: session.notes,
+            tags: session.tags,
+            group: session.group,
+            isShared: false, // Import as personal
+          });
+        } catch (err) {
+          console.error('Failed to import session:', session.name);
+        }
+      }
+      await fetchMachines();
+      alert('Sessions imported successfully');
+    } catch (err) {
+      alert('Failed to import sessions. Please check the file format.');
+    }
+    e.target.value = ''; // Reset input
+  };
+
+  // Apply dark mode
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('dark_mode', String(darkMode));
+  }, [darkMode]);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900 overflow-hidden">
       <Header />
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* Sidebar Toggle Button - Mobile (when closed) */}
@@ -321,62 +455,94 @@ export const DashboardPage: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {sharedMachines.length > 0 && (
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                    <button
-                      onClick={() => {
-                        const newState = !sharedSessionsExpanded;
-                        setSharedSessionsExpanded(newState);
-                        localStorage.setItem('shared_sessions_expanded', String(newState));
-                      }}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition rounded-t-lg"
-                    >
-                      <h3 className="text-base font-semibold text-gray-800">Shared Sessions</h3>
-                      <span className="text-gray-500 text-lg">
-                        {sharedSessionsExpanded ? '▼' : '▶'}
-                      </span>
-                    </button>
-                    {sharedSessionsExpanded && (
-                      <div className="px-4 pb-4">
-                        <MachineList
-                          machines={sharedMachines}
-                          onOpen={handleOpenMachine}
-                          onEdit={handleEditMachine}
-                          onDelete={handleDeleteMachine}
-                          title=""
-                          canEdit={user?.role === 'ADMIN' || user?.canManageSharedMachines || false}
-                        />
-                      </div>
-                    )}
+                {showFavoritesOnly && favoriteMachines.length > 0 && (
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="w-full px-4 py-3 flex items-center justify-between">
+                      <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200">⭐ Favorites</h3>
+                      <span className="text-yellow-500">⭐</span>
+                    </div>
+                    <div className="px-4 pb-4">
+                      <MachineList
+                        machines={favoriteMachines}
+                        onOpen={handleOpenMachine}
+                        onEdit={handleEditMachine}
+                        onDelete={handleDeleteMachine}
+                        onToggleFavorite={toggleFavorite}
+                        title=""
+                        canEdit={true}
+                      />
+                    </div>
                   </div>
                 )}
-                {personalMachines.length > 0 && (
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                    <button
-                      onClick={() => {
-                        const newState = !mySessionsExpanded;
-                        setMySessionsExpanded(newState);
-                        localStorage.setItem('my_sessions_expanded', String(newState));
-                      }}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition rounded-t-lg"
-                    >
-                      <h3 className="text-base font-semibold text-gray-800">My Sessions</h3>
-                      <span className="text-gray-500 text-lg">
-                        {mySessionsExpanded ? '▼' : '▶'}
-                      </span>
-                    </button>
-                    {mySessionsExpanded && (
-                      <div className="px-4 pb-4">
-                        <MachineList
-                          machines={personalMachines}
-                          onOpen={handleOpenMachine}
-                          onEdit={handleEditMachine}
-                          onDelete={handleDeleteMachine}
-                          title=""
-                          canEdit={true}
-                        />
+                {!showFavoritesOnly && (
+                  <>
+                    {sharedMachines.length > 0 && (
+                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <button
+                          onClick={() => {
+                            const newState = !sharedSessionsExpanded;
+                            setSharedSessionsExpanded(newState);
+                            localStorage.setItem('shared_sessions_expanded', String(newState));
+                          }}
+                          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition rounded-t-lg"
+                        >
+                          <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200">Shared Sessions</h3>
+                          <span className="text-gray-500 dark:text-gray-400 text-lg">
+                            {sharedSessionsExpanded ? '▼' : '▶'}
+                          </span>
+                        </button>
+                        {sharedSessionsExpanded && (
+                          <div className="px-4 pb-4">
+                            <MachineList
+                              machines={sharedMachines}
+                              onOpen={handleOpenMachine}
+                              onEdit={handleEditMachine}
+                              onDelete={handleDeleteMachine}
+                              onToggleFavorite={toggleFavorite}
+                              title=""
+                              canEdit={user?.role === 'ADMIN' || user?.canManageSharedMachines || false}
+                            />
+                          </div>
+                        )}
                       </div>
                     )}
+                    {personalMachines.length > 0 && (
+                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <button
+                          onClick={() => {
+                            const newState = !mySessionsExpanded;
+                            setMySessionsExpanded(newState);
+                            localStorage.setItem('my_sessions_expanded', String(newState));
+                          }}
+                          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition rounded-t-lg"
+                        >
+                          <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200">My Sessions</h3>
+                          <span className="text-gray-500 dark:text-gray-400 text-lg">
+                            {mySessionsExpanded ? '▼' : '▶'}
+                          </span>
+                        </button>
+                        {mySessionsExpanded && (
+                          <div className="px-4 pb-4">
+                            <MachineList
+                              machines={personalMachines}
+                              onOpen={handleOpenMachine}
+                              onEdit={handleEditMachine}
+                              onDelete={handleDeleteMachine}
+                              onToggleFavorite={toggleFavorite}
+                              title=""
+                              canEdit={true}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+                {sharedMachines.length === 0 && personalMachines.length === 0 && favoriteMachines.length === 0 && (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    {searchQuery || filterGroup || showFavoritesOnly
+                      ? 'No sessions match your filters'
+                      : 'No sessions available'}
                   </div>
                 )}
               </div>
@@ -417,6 +583,60 @@ export const DashboardPage: React.FC = () => {
           }}
           onSave={handleSaveMachine}
         />
+      )}
+
+      {/* Quick Connect Modal */}
+      {showQuickConnect && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4 dark:text-gray-200">Quick Connect</h2>
+            <div className="mb-4">
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                Host/IP *
+              </label>
+              <input
+                type="text"
+                value={quickConnectHost}
+                onChange={(e) => setQuickConnectHost(e.target.value)}
+                placeholder="192.168.1.100"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                autoFocus
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                Port *
+              </label>
+              <input
+                type="number"
+                value={quickConnectPort}
+                onChange={(e) => setQuickConnectPort(parseInt(e.target.value) || 5900)}
+                min="1"
+                max="65535"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowQuickConnect(false);
+                  setQuickConnectHost('');
+                  setQuickConnectPort(5900);
+                }}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition dark:text-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleQuickConnect}
+                disabled={!quickConnectHost.trim()}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition disabled:opacity-50"
+              >
+                Connect
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
