@@ -447,13 +447,6 @@ export const DashboardPage: React.FC = () => {
                 >
                   Favorites
                 </button>
-                <button
-                  onClick={() => setDarkMode(!darkMode)}
-                  className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                  title="Toggle dark mode"
-                >
-                  {darkMode ? 'Light' : 'Dark'}
-                </button>
               </div>
               <div className="flex gap-2 flex-wrap">
                 <button
