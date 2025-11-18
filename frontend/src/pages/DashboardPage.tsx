@@ -610,6 +610,7 @@ export const DashboardPage: React.FC = () => {
             setEditingMachine(null);
           }}
           onSave={handleSaveMachine}
+          availableGroups={groups}
         />
       )}
 

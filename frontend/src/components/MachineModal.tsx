@@ -16,6 +16,7 @@ interface MachineModalProps {
     tags?: string[];
     groups?: string[];
   }) => Promise<void>;
+  availableGroups?: string[];
 }
 
 export const MachineModal: React.FC<MachineModalProps> = ({
@@ -23,6 +24,7 @@ export const MachineModal: React.FC<MachineModalProps> = ({
   isShared = false,
   onClose,
   onSave,
+  availableGroups = [],
 }) => {
   const { user } = useAuth();
   const [name, setName] = useState('');
@@ -236,16 +238,33 @@ export const MachineModal: React.FC<MachineModalProps> = ({
                 </span>
               ))}
             </div>
-            <input
-              id="groups"
-              type="text"
-              value={groupInput}
-              onChange={(e) => setGroupInput(e.target.value)}
-              onKeyDown={handleAddGroup}
-              placeholder="Type group name and press Enter"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">You can add multiple groups</p>
+            <div className="flex gap-2">
+              {unselectedGroups.length > 0 ? (
+                <select
+                  onChange={handleSelectGroup}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                >
+                  <option value="">Select existing group...</option>
+                  {unselectedGroups.map((group) => (
+                    <option key={group} value={group}>{group}</option>
+                  ))}
+                </select>
+              ) : null}
+              <input
+                type="text"
+                value={groupInput}
+                onChange={(e) => setGroupInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && groupInput.trim()) {
+                    e.preventDefault();
+                    handleAddGroup(groupInput);
+                  }
+                }}
+                placeholder={unselectedGroups.length > 0 ? "Or type new group name" : "Type group name and press Enter"}
+                className={`px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm ${unselectedGroups.length > 0 ? 'flex-1' : 'w-full'}`}
+              />
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Select from existing groups or create a new one</p>
           </div>
           {canSetShared && (
             <div className="mb-4">

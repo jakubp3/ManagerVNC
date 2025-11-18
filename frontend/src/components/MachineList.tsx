@@ -55,7 +55,7 @@ export const MachineList: React.FC<MachineListProps> = ({
                             e.stopPropagation();
                             onToggleFavorite(machine);
                           }}
-                          className={`text-sm transition ${
+                          className={`text-xl transition ${
                             machine.isFavorite
                               ? 'text-yellow-500 hover:text-yellow-600 dark:text-yellow-400'
                               : 'text-gray-400 dark:text-gray-500 hover:text-yellow-500 dark:hover:text-yellow-400'
