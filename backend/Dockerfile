@@ -11,23 +11,28 @@ RUN apt-get update && apt-get install -y \
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
+# Install dependencies (postinstall script will try to generate Prisma Client)
 RUN npm install
-
-# Generate Prisma Client
-# Set PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING to handle network issues with Prisma binaries
-ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
-RUN npx prisma generate
 
 # Copy source code
 COPY . .
 
-# Build TypeScript
+# Generate Prisma Client with aggressive retry logic (required for TypeScript build)
+# Try multiple times with increasing delays
+RUN PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate || \
+    (echo "Retry 1..." && sleep 10 && PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate) || \
+    (echo "Retry 2..." && sleep 20 && PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate) || \
+    (echo "Retry 3..." && sleep 30 && PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate) || \
+    (echo "Retry 4..." && sleep 40 && PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate) || \
+    (echo "Final retry..." && sleep 60 && PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate)
+
+# Build TypeScript (requires Prisma Client to be generated)
 RUN npm run build
 
 # Expose port
 EXPOSE 4000
 
-# Start server (create tables from schema on startup)
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss || true && npm start"]
+# Start server (generate Prisma Client, create tables from schema on startup)
+# Generate Prisma Client at runtime with retry logic for network issues
+CMD ["sh", "-c", "PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate || (sleep 5 && PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate) || (sleep 10 && PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate) && npx prisma db push --accept-data-loss || true && npm start"]
 

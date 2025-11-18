@@ -7,6 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "postinstall": "PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate || (sleep 5 && PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate) || (sleep 10 && PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate) || echo 'Warning: Prisma generate failed, will retry at runtime'",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
