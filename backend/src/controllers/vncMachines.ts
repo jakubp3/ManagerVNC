@@ -72,9 +72,11 @@ export const getSharedMachines = async (req: Request, res: Response) => {
 
   const machinesWithFavorites = machines.map(machine => {
     const tags = machine.tags ? JSON.parse(machine.tags) : [];
+    const groups = machine.groups ? JSON.parse(machine.groups) : [];
     return {
       ...machine,
       tags,
+      groups,
       isFavorite: favoriteIds.has(machine.id),
     };
   });
@@ -100,9 +102,11 @@ export const getPersonalMachines = async (req: Request, res: Response) => {
 
   const machinesWithFavorites = machines.map(machine => {
     const tags = machine.tags ? JSON.parse(machine.tags) : [];
+    const groups = machine.groups ? JSON.parse(machine.groups) : [];
     return {
       ...machine,
       tags,
+      groups,
       isFavorite: favoriteIds.has(machine.id),
     };
   });

@@ -25,12 +25,13 @@ const GroupManager: React.FC<{ machines: VncMachine[] }> = ({ machines }) => {
     }
   };
 
-  const handleDeleteGroup = (groupName: string) => {
+  const handleDeleteGroup = async (groupName: string) => {
     if (window.confirm(`Delete group "${groupName}"? This will remove it from all sessions.`)) {
       // Remove group from all machines
-      machines.forEach(async (machine) => {
-        if (machine.groups && machine.groups.includes(groupName)) {
-          const updatedGroups = machine.groups.filter(g => g !== groupName);
+      const updates = machines
+        .filter(machine => machine.groups && machine.groups.includes(groupName))
+        .map(async (machine) => {
+          const updatedGroups = machine.groups!.filter(g => g !== groupName);
           try {
             await api.patch(`/vnc-machines/${machine.id}`, {
               groups: updatedGroups.length > 0 ? updatedGroups : undefined,
@@ -38,9 +39,12 @@ const GroupManager: React.FC<{ machines: VncMachine[] }> = ({ machines }) => {
           } catch (err) {
             console.error('Failed to update machine:', machine.name);
           }
-        }
-      });
+        });
+      
+      await Promise.all(updates);
       setAllGroups(allGroups.filter(g => g !== groupName));
+      // Refresh machines list
+      window.location.reload();
     }
   };
 

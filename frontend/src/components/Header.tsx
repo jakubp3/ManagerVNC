@@ -1,9 +1,21 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('dark_mode') === 'true';
+  });
+
+  useEffect(() => {
+    const handleDarkModeChange = (e: any) => {
+      setDarkMode(e.detail);
+    };
+    window.addEventListener('darkModeChange', handleDarkModeChange);
+    return () => window.removeEventListener('darkModeChange', handleDarkModeChange);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -45,8 +57,8 @@ export const Header: React.FC = () => {
           </span>
           <button
             onClick={() => {
-              const darkMode = localStorage.getItem('dark_mode') === 'true';
               const newMode = !darkMode;
+              setDarkMode(newMode);
               if (newMode) {
                 document.documentElement.classList.add('dark');
               } else {
@@ -59,7 +71,7 @@ export const Header: React.FC = () => {
             className="bg-gray-600 hover:bg-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition text-sm sm:text-base font-medium shadow-sm hover:shadow"
             title="Toggle dark mode"
           >
-            {localStorage.getItem('dark_mode') === 'true' ? 'Light' : 'Dark'}
+            {darkMode ? 'Light' : 'Dark'}
           </button>
           <button
             onClick={() => {
