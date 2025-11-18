@@ -158,44 +158,40 @@ export const DashboardPage: React.FC = () => {
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       <Header />
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
-        {/* Sidebar Toggle Button - Mobile */}
-        {!sidebarOpen && (
-          <button
-            onClick={toggleSidebar}
-            className="lg:hidden absolute top-2 left-2 z-50 bg-gray-800 text-white p-2 rounded-md shadow-lg hover:bg-gray-700 transition"
-            title="Show Sidebar"
-          >
-            →
-          </button>
-        )}
-
         {/* Sidebar Toggle Button - Desktop (when closed) */}
         {!sidebarOpen && (
           <button
             onClick={toggleSidebar}
-            className="hidden lg:block absolute top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-md shadow-lg hover:bg-gray-700 transition"
+            className="hidden lg:flex absolute top-4 left-4 z-50 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition font-medium items-center gap-2"
             title="Show Sidebar"
           >
-            →
+            <span>→</span>
+            <span>Show Machines</span>
           </button>
         )}
 
         {/* Sidebar */}
         <div
           className={`${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0'
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:opacity-0 lg:pointer-events-none'
           } fixed lg:static inset-y-0 left-0 w-80 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-40 lg:z-auto`}
           style={{ top: '64px', height: 'calc(100vh - 64px)' }}
         >
           {/* Sidebar Header */}
           <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-            <h2 className="text-lg font-semibold text-gray-800">Machines</h2>
+            <button
+              onClick={toggleSidebar}
+              className="text-lg font-semibold text-gray-800 hover:text-blue-600 transition cursor-pointer"
+              title="Click to hide/show sidebar"
+            >
+              Machines
+            </button>
             <button
               onClick={toggleSidebar}
               className="text-gray-500 hover:text-gray-700 p-1.5 hover:bg-gray-200 rounded transition"
-              title={sidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
+              title="Hide Sidebar"
             >
-              {sidebarOpen ? '←' : '→'}
+              ←
             </button>
           </div>
 

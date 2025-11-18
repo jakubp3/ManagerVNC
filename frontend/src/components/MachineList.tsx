@@ -79,7 +79,8 @@ export const MachineList: React.FC<MachineListProps> = ({
                   </button>
                   <button
                     onClick={() => {
-                      const url = getNovncUrl(machine);
+                      // Open direct VNC connection without password in URL
+                      const url = `${window.location.protocol}//${window.location.hostname}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&autoconnect=true&resize=scale&reconnect=true&compression=0&quality=6&show_dot=true`;
                       window.open(url, '_blank');
                     }}
                     className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition shadow-sm hover:shadow"
