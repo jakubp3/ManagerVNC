@@ -185,14 +185,19 @@ export const DashboardPage: React.FC = () => {
         {!sidebarOpen && sessions.length > 0 && (
           <div className="hidden lg:flex absolute top-4 left-4 z-50 gap-2 flex-wrap">
             {sessions.map((session) => (
-              <button
+              <div
                 key={session.id}
-                onClick={toggleSidebar}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition font-medium flex items-center gap-2"
-                title={`Click to show sessions - ${session.machine.name}`}
+                className="bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-2 flex items-center gap-3"
               >
-                <span>{session.machine.name}</span>
-              </button>
+                <span className="font-medium text-gray-800">{session.machine.name}</span>
+                <button
+                  onClick={toggleSidebar}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium transition shadow-sm hover:shadow"
+                  title="Show menu"
+                >
+                  Show Menu
+                </button>
+              </div>
             ))}
           </div>
         )}
