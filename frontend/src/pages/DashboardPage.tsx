@@ -3,6 +3,7 @@ import { Header } from '../components/Header';
 import { MachineList } from '../components/MachineList';
 import { MachineModal } from '../components/MachineModal';
 import { VncTabs } from '../components/VncTabs';
+import { SettingsModal } from '../components/SettingsModal';
 import { api } from '../services/api';
 import { VncMachine } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -60,6 +61,7 @@ export const DashboardPage: React.FC = () => {
   const [showQuickConnect, setShowQuickConnect] = useState(false);
   const [quickConnectHost, setQuickConnectHost] = useState('');
   const [quickConnectPort, setQuickConnectPort] = useState(5900);
+  const [showSettings, setShowSettings] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('dark_mode');
     return saved === 'true';
@@ -251,52 +253,6 @@ export const DashboardPage: React.FC = () => {
     }
   };
 
-  const exportSessions = () => {
-    const dataStr = JSON.stringify(allMachines, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `vnc-sessions-${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImportSessions = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    try {
-      const text = await file.text();
-      const imported = JSON.parse(text);
-      if (!Array.isArray(imported)) {
-        alert('Invalid file format');
-        return;
-      }
-      
-      for (const session of imported) {
-        try {
-          await api.post('/vnc-machines', {
-            name: session.name,
-            host: session.host,
-            port: session.port,
-            password: session.password,
-            notes: session.notes,
-            tags: session.tags,
-            group: session.group,
-            isShared: false, // Import as personal
-          });
-        } catch (err) {
-          console.error('Failed to import session:', session.name);
-        }
-      }
-      await fetchMachines();
-      alert('Sessions imported successfully');
-    } catch (err) {
-      alert('Failed to import sessions. Please check the file format.');
-    }
-    e.target.value = ''; // Reset input
-  };
 
   // Apply dark mode
   useEffect(() => {
@@ -307,6 +263,15 @@ export const DashboardPage: React.FC = () => {
     }
     localStorage.setItem('dark_mode', String(darkMode));
   }, [darkMode]);
+
+  // Listen for settings open event from header
+  useEffect(() => {
+    const handleOpenSettings = () => {
+      setShowSettings(true);
+    };
+    window.addEventListener('openSettings', handleOpenSettings);
+    return () => window.removeEventListener('openSettings', handleOpenSettings);
+  }, []);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900 overflow-hidden">
@@ -480,21 +445,12 @@ export const DashboardPage: React.FC = () => {
                   Quick Connect
                 </button>
                 <button
-                  onClick={exportSessions}
+                  onClick={() => setShowSettings(true)}
                   className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition"
-                  title="Export sessions"
+                  title="Settings"
                 >
-                  Export
+                  Settings
                 </button>
-                <label className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition cursor-pointer">
-                  Import
-                  <input
-                    type="file"
-                    accept=".json"
-                    onChange={handleImportSessions}
-                    className="hidden"
-                  />
-                </label>
               </div>
             </div>
 
@@ -652,6 +608,14 @@ export const DashboardPage: React.FC = () => {
           onSave={handleSaveMachine}
         />
       )}
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        machines={allMachines}
+        onExportComplete={fetchMachines}
+      />
 
       {/* Quick Connect Modal */}
       {showQuickConnect && (

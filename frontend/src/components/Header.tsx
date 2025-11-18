@@ -44,6 +44,17 @@ export const Header: React.FC = () => {
             {user?.role}
           </span>
           <button
+            onClick={() => {
+              // This will be handled by DashboardPage
+              const event = new CustomEvent('openSettings');
+              window.dispatchEvent(event);
+            }}
+            className="bg-gray-600 hover:bg-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition text-sm sm:text-base font-medium shadow-sm hover:shadow"
+            title="Settings"
+          >
+            Settings
+          </button>
+          <button
             onClick={handleLogout}
             className="bg-red-600 hover:bg-red-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md transition text-sm sm:text-base font-medium shadow-sm hover:shadow"
           >
