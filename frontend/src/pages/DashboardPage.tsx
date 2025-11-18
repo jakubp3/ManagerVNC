@@ -157,6 +157,11 @@ export const DashboardPage: React.FC = () => {
         localStorage.removeItem('active_vnc_session');
       }
     }
+    // If no sessions left and sidebar is closed, open it automatically
+    if (updatedSessions.length === 0 && !sidebarOpen) {
+      setSidebarOpen(true);
+      localStorage.setItem('sidebar_open', 'true');
+    }
   };
 
   const sharedMachines = machines.filter((m) => m.ownerId === null);
@@ -193,14 +198,14 @@ export const DashboardPage: React.FC = () => {
         {!sidebarOpen && sessions.length > 0 && (
           <div className="hidden lg:block absolute top-0 left-0 right-0 z-50 bg-gray-200 border-b border-gray-300">
             <div className="flex flex-1 overflow-x-auto items-center h-12">
-              {/* Show Menu button as first card */}
+              {/* Show Sessions button as first card */}
               <button
                 onClick={toggleSidebar}
                 className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-5 py-2.5 border-r border-gray-300 transition font-semibold flex-shrink-0 h-full flex items-center"
-                title="Show menu"
+                title="Show sessions"
               >
                 <span className="mr-2">☰</span>
-                <span>Menu</span>
+                <span>Show Sessions</span>
               </button>
               {/* Session name cards with close button */}
               {sessions.map((session) => (
