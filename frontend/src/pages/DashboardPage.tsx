@@ -159,15 +159,15 @@ export const DashboardPage: React.FC = () => {
       <Header />
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* Sidebar Toggle Button - Mobile */}
-        <button
-          onClick={toggleSidebar}
-          className={`absolute top-2 left-2 z-50 lg:hidden bg-gray-800 text-white p-2 rounded-md shadow-lg hover:bg-gray-700 transition ${
-            sidebarOpen ? '' : 'opacity-75'
-          }`}
-          title={sidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
-        >
-          {sidebarOpen ? '←' : '→'}
-        </button>
+        {!sidebarOpen && (
+          <button
+            onClick={toggleSidebar}
+            className="lg:hidden absolute top-2 left-2 z-50 bg-gray-800 text-white p-2 rounded-md shadow-lg hover:bg-gray-700 transition"
+            title="Show Sidebar"
+          >
+            →
+          </button>
+        )}
 
         {/* Sidebar Toggle Button - Desktop (when closed) */}
         {!sidebarOpen && (

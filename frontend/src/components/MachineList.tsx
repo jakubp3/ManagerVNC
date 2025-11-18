@@ -1,6 +1,13 @@
 import { VncMachine } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
+// Helper function to generate noVNC URL
+const getNovncUrl = (machine: VncMachine): string => {
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  return `${protocol}//${hostname}:6080/vnc.html?host=${encodeURIComponent(machine.host)}&port=${machine.port}&password=${encodeURIComponent(machine.password || '')}&autoconnect=true&resize=scale&reconnect=true&compression=0&quality=6&show_dot=true`;
+};
+
 interface MachineListProps {
   machines: VncMachine[];
   onOpen: (machine: VncMachine) => void;
@@ -69,6 +76,16 @@ export const MachineList: React.FC<MachineListProps> = ({
                     className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition shadow-sm hover:shadow"
                   >
                     Open
+                  </button>
+                  <button
+                    onClick={() => {
+                      const url = getNovncUrl(machine);
+                      window.open(url, '_blank');
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition shadow-sm hover:shadow"
+                    title="Open in new tab"
+                  >
+                    ↗ New Tab
                   </button>
                   {canEditThis && (
                     <>

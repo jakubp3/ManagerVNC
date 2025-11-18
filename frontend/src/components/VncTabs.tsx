@@ -72,17 +72,6 @@ export const VncTabs: React.FC<VncTabsProps> = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  const url = getNovncUrl(session.machine);
-                  window.open(url, '_blank', 'width=1920,height=1080');
-                }}
-                className="text-gray-500 hover:text-blue-600 transition ml-1 mr-1"
-                title="Open in new window"
-              >
-                ↗
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
                   onCloseSession(session.id);
                 }}
                 className="text-gray-500 hover:text-red-600 transition ml-1"
