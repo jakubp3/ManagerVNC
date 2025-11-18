@@ -407,11 +407,11 @@ export const DashboardPage: React.FC = () => {
         <div
           className={`${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:opacity-0 lg:pointer-events-none'
-          } fixed lg:static inset-y-0 left-0 w-80 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-40 lg:z-auto`}
+          } fixed lg:static inset-y-0 left-0 w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 z-40 lg:z-auto`}
           style={{ top: '64px', height: 'calc(100vh - 64px)' }}
         >
           {/* Sidebar Header */}
-          <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-800">
             <button
               onClick={toggleSidebar}
               className="text-lg font-semibold text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
@@ -430,6 +430,74 @@ export const DashboardPage: React.FC = () => {
 
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-4 dark:bg-gray-900">
+            {/* Search and Filters */}
+            <div className="mb-4 space-y-2">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search sessions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                />
+                <span className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-500">🔍</span>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <select
+                  value={filterGroup || ''}
+                  onChange={(e) => setFilterGroup(e.target.value || null)}
+                  className="flex-1 min-w-[120px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                >
+                  <option value="">All Groups</option>
+                  {groups.map((group) => (
+                    <option key={group} value={group}>{group}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                    showFavoritesOnly
+                      ? 'bg-yellow-500 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  ⭐
+                </button>
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                  title="Toggle dark mode"
+                >
+                  {darkMode ? '☀️' : '🌙'}
+                </button>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setShowQuickConnect(true)}
+                  className="flex-1 min-w-[140px] bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition"
+                >
+                  ⚡ Quick
+                </button>
+                <button
+                  onClick={exportSessions}
+                  className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition"
+                  title="Export sessions"
+                >
+                  📥
+                </button>
+                <label className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition cursor-pointer">
+                  📤
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleImportSessions}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
             <div className="mb-4">
               <button
                 onClick={handleCreateMachine}
@@ -448,9 +516,9 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {loading ? (
-              <div className="text-center py-8 text-gray-500">Loading...</div>
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading...</div>
             ) : error ? (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
                 {error}
               </div>
             ) : (
